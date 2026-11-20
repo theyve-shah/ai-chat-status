@@ -1,0 +1,180 @@
+:root {
+  color-scheme: light;
+  --ink: #111;
+  --muted: #6b7280;
+  --faint: #9ca3af;
+  --line: #e5e7eb;
+  --bg: #f7f7f5;
+  --card: #fff;
+  --warn: #92400e;
+  --warn-bg: #fff7ed;
+  --ok: #0f7a4d;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 500px at 10% -10%, #e8efe8 0%, transparent 55%),
+    radial-gradient(900px 400px at 100% 0%, #efe8e0 0%, transparent 50%),
+    var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+main {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+h2 {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.lede {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.warn {
+  margin: 0.75rem 0 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.65rem;
+  background: var(--warn-bg);
+  color: var(--warn);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+form,
+.status,
+.howto {
+  margin-top: 1.25rem;
+  padding: 1rem 1.1rem;
+  background: var(--card);
+  border-radius: 1rem;
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+label.row {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 400;
+  margin-bottom: 0.45rem;
+}
+
+input[type="url"],
+input[type="password"],
+input[type="number"] {
+  width: 100%;
+  border: 0;
+  border-radius: 0.65rem;
+  background: #f3f4f6;
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+input:focus {
+  outline: 2px solid #111;
+  outline-offset: 1px;
+}
+
+fieldset {
+  border: 0;
+  margin: 0 0 0.85rem;
+  padding: 0;
+}
+
+legend {
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 0.35rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+button {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #f3f4f6;
+  color: #111;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.howto ol {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.howto code {
+  font-size: 0.78rem;
+}
+
+.ok {
+  color: var(--ok);
+}

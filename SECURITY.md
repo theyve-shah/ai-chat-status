@@ -17,3 +17,5 @@ You’ll get a reply when it’s received. Please give a reasonable window befor
 - Hosted deploys should set `DESK_PASSWORD` and `DESK_SESSION_SECRET` in the host’s secret store — never commit them.
 - Desk stores chats and Connect settings in the browser (`localStorage`). Treat shared machines as untrusted.
 - Deep links (`claude://`, `chatgpt://`, `cursor://`) only open local apps; they are not an API integration.
+- The Desk Sync browser extension lists Claude/ChatGPT chats **inside your browser** using your existing login. It posts only chat metadata to Desk. Never paste Anthropic/OpenAI session cookies into Desk or env vars.
+

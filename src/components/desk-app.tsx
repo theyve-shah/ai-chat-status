@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useChats } from "@/hooks/use-chats";
 import { useConnections } from "@/hooks/use-connections";
+import { useImportPull } from "@/hooks/use-import-pull";
 import { useProviderSync } from "@/hooks/use-provider-sync";
 import {
   DEFAULT_CONNECTIONS,
@@ -77,6 +78,8 @@ export function DeskApp() {
   const chatgptSync = useProviderSync("chatgpt", mergeFromSync, {
     autoRefresh: false,
   });
+  // Extension / desk-push → import buffer → board (no manual Pull required)
+  useImportPull(mergeFromSync);
 
   function importChats(chats: TrackedChat[]) {
     mergeFromSync(chats, { pruneMissing: false });

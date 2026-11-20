@@ -19,6 +19,9 @@ export function proxy(request: NextRequest) {
 
   const isLogin = pathname === "/login";
   const isAuthApi = pathname.startsWith("/api/auth/");
+  // Import push/pull uses optional DESK_IMPORT_TOKEN (Bearer), not the Desk
+  // session cookie — allow the Desk Sync extension / desk-push through.
+  const isImportApi = pathname.startsWith("/api/sync/import");
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   const authed = verifySessionToken(token);
 
@@ -26,7 +29,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  if (!authed && !isLogin && !isAuthApi) {
+  if (!authed && !isLogin && !isAuthApi && !isImportApi) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);

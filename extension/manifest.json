@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Desk Sync",
+  "version": "0.1.0",
+  "description": "Experimental Pro sync: list your claude.ai / chatgpt.com chats in-browser and push metadata to Desk. Not affiliated with Anthropic or OpenAI.",
+  "permissions": ["alarms", "storage"],
+  "host_permissions": [
+    "https://claude.ai/*",
+    "https://chatgpt.com/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "optional_host_permissions": ["https://*/*", "http://*/*"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "action": {
+    "default_title": "Desk Sync — open options",
+    "default_popup": "options.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://claude.ai/*", "https://chatgpt.com/*"],
+      "js": ["content-ping.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

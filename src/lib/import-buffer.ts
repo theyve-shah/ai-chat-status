@@ -10,11 +10,23 @@ export type ImportBuffer = {
   chats: TrackedChat[];
 };
 
-export async function writeImportBuffer(chats: TrackedChat[]): Promise<ImportBuffer> {
+export async function writeImportBuffer(
+  chats: TrackedChat[],
+  opts?: { merge?: boolean },
+): Promise<ImportBuffer> {
+  let merged = chats;
+  if (opts?.merge) {
+    const existing = await readImportBuffer();
+    const byId = new Map<string, TrackedChat>();
+    for (const c of existing?.chats ?? []) byId.set(c.id, c);
+    for (const c of chats) byId.set(c.id, c);
+    merged = Array.from(byId.values());
+  }
+
   const payload: ImportBuffer = {
     syncedAt: new Date().toISOString(),
-    count: chats.length,
-    chats,
+    count: merged.length,
+    chats: merged,
   };
   await fs.writeFile(BUFFER_FILE, JSON.stringify(payload), "utf8");
   return payload;

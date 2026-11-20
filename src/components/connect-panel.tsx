@@ -56,9 +56,10 @@ export function ConnectPanel({
           Connect
         </h1>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#6b7280]">
-          Cursor syncs from its Cloud Agents API. Claude and ChatGPT consumer
-          apps have no list-chats API — use local session import (works) or
-          Enterprise Compliance keys (optional).
+          Cursor syncs from its Cloud Agents API. For Claude.ai and ChatGPT.com
+          on Pro, install the Desk Sync browser extension — chats appear
+          automatically while you stay logged in. Claude Code / Codex file
+          import and Enterprise APIs remain available as fallbacks.
         </p>
       </header>
 
@@ -199,35 +200,72 @@ function ClaudeCard({
               Enterprise key
             </span>
           ) : (
-            <span className="text-[11px] text-[#9ca3af]">
-              Import · optional Enterprise
+            <span className="text-[11px] text-[#0f7a4d]">
+              Pro · browser sync
             </span>
           )
         }
-        blurb="claude.ai has no consumer list API. Claude Code sessions on disk sync for real; Enterprise Compliance can list org chats."
+        blurb="Pro: install Desk Sync, stay logged into claude.ai — chats land on the board automatically (unofficial browser sync). No paste-a-link, no cookies on the server."
         docsUrl="https://platform.claude.com/docs/en/api/compliance/apps/chats/list"
-        docsLabel="Compliance docs"
+        docsLabel="Enterprise docs"
       />
 
       <div className="mt-4 space-y-3 border-t border-[#f0f0f0] pt-4">
-        <PathBlock title="A · Claude Code (consumer — works)">
-          <p>
-            Sessions live at{" "}
-            <code className="text-[11px]">~/.claude/projects/**/*.jsonl</code>.
-            Drop those files below, or run{" "}
-            <code className="text-[11px]">
-              node scripts/desk-push.mjs --post
-            </code>{" "}
-            then <strong className="font-medium text-[#111]">Pull last push</strong>.
+        <PathBlock title="A · Desk Sync extension (Pro — automatic)">
+          <ol className="mt-1 space-y-1.5">
+            <li className="flex gap-2.5">
+              <Step n={1} />
+              <span>
+                Chrome → <code className="text-[11px]">chrome://extensions</code>{" "}
+                → Developer mode → <strong className="font-medium text-[#111]">Load unpacked</strong>{" "}
+                → select the repo’s <code className="text-[11px]">extension/</code> folder.
+              </span>
+            </li>
+            <li className="flex gap-2.5">
+              <Step n={2} />
+              <span>
+                Open extension options → set Desk URL (e.g.{" "}
+                <code className="text-[11px]">http://127.0.0.1:3847</code>) →
+                enable Claude.
+              </span>
+            </li>
+            <li className="flex gap-2.5">
+              <Step n={3} />
+              <span>
+                Stay logged into{" "}
+                <a
+                  href="https://claude.ai"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline decoration-[#d1d5db] underline-offset-2 hover:text-[#111]"
+                >
+                  claude.ai
+                </a>
+                . Rows appear on the board on a timer (Desk auto-pulls).
+              </span>
+            </li>
+          </ol>
+          <p className="mt-2 text-[11px] leading-relaxed text-[#9ca3af]">
+            Experimental · uses your browser login · may break when Claude
+            changes private APIs · not affiliated with Anthropic.
           </p>
         </PathBlock>
-        <PathBlock title="B · Claude Enterprise Compliance (optional)">
+        <PathBlock title="B · Claude Code JSONL (secondary)">
           <p>
-            Set{" "}
-            <code className="text-[11px]">DESK_ANTHROPIC_COMPLIANCE_KEY</code>{" "}
-            (Compliance Access Key with{" "}
-            <code className="text-[11px]">read:compliance_user_data</code>), then
-            Sync. Not available on Free/Pro consumer plans.
+            Drop{" "}
+            <code className="text-[11px]">~/.claude/projects/**/*.jsonl</code>{" "}
+            below, or{" "}
+            <code className="text-[11px]">
+              node scripts/desk-push.mjs --post
+            </code>
+            .
+          </p>
+        </PathBlock>
+        <PathBlock title="C · Enterprise Compliance (optional)">
+          <p>
+            Only if you have Claude Enterprise: set{" "}
+            <code className="text-[11px]">DESK_ANTHROPIC_COMPLIANCE_KEY</code>,
+            then Sync. Not needed for Pro browser sync.
           </p>
         </PathBlock>
       </div>
@@ -241,7 +279,7 @@ function ClaudeCard({
           title={
             sync.configured
               ? "Sync Enterprise compliance chats"
-              : "Needs DESK_ANTHROPIC_COMPLIANCE_KEY"
+              : "Needs DESK_ANTHROPIC_COMPLIANCE_KEY (optional)"
           }
         >
           {sync.syncing ? (
@@ -261,10 +299,6 @@ function ClaudeCard({
       </div>
       {sync.error && sync.configured !== false ? (
         <p className="mt-3 text-xs leading-relaxed text-[#b45309]">{sync.error}</p>
-      ) : sync.configured === false ? (
-        <p className="mt-3 text-xs leading-relaxed text-[#9ca3af]">
-          No Enterprise key — use file drop / desk-push for Claude Code.
-        </p>
       ) : null}
 
       <DesktopTestRow
@@ -301,36 +335,75 @@ function ChatgptCard({
               Enterprise key
             </span>
           ) : (
-            <span className="text-[11px] text-[#9ca3af]">
-              Import · optional Enterprise
+            <span className="text-[11px] text-[#0f7a4d]">
+              Pro · browser sync
             </span>
           )
         }
-        blurb="chatgpt.com has no consumer list API. OpenAI Conversations API cannot list threads. Codex CLI rollouts on disk sync for real; Enterprise Compliance can list workspace chats."
+        blurb="Pro: same Desk Sync extension — stay logged into chatgpt.com and threads appear automatically. Unofficial browser sync; not an OpenAI API product."
         docsUrl="https://developers.openai.com/cookbook/examples/chatgpt/compliance_api/logs_platform"
-        docsLabel="Compliance docs"
+        docsLabel="Enterprise docs"
       />
 
       <div className="mt-4 space-y-3 border-t border-[#f0f0f0] pt-4">
-        <PathBlock title="A · Codex CLI (consumer — works)">
-          <p>
-            Rollouts live at{" "}
-            <code className="text-[11px]">
-              ~/.codex/sessions/**/rollout-*.jsonl
-            </code>
-            . Drop them below, or{" "}
-            <code className="text-[11px]">
-              node scripts/desk-push.mjs --post
-            </code>{" "}
-            → Pull last push.
+        <PathBlock title="A · Desk Sync extension (Pro — automatic)">
+          <ol className="mt-1 space-y-1.5">
+            <li className="flex gap-2.5">
+              <Step n={1} />
+              <span>
+                Load unpacked <code className="text-[11px]">extension/</code>{" "}
+                from this repo in{" "}
+                <code className="text-[11px]">chrome://extensions</code> (same
+                install as Claude).
+              </span>
+            </li>
+            <li className="flex gap-2.5">
+              <Step n={2} />
+              <span>
+                Options → Desk URL → enable ChatGPT → stay logged into{" "}
+                <a
+                  href="https://chatgpt.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline decoration-[#d1d5db] underline-offset-2 hover:text-[#111]"
+                >
+                  chatgpt.com
+                </a>
+                .
+              </span>
+            </li>
+            <li className="flex gap-2.5">
+              <Step n={3} />
+              <span>
+                Sync runs on a timer and when you open ChatGPT; Desk auto-pulls
+                rows onto the board.
+              </span>
+            </li>
+          </ol>
+          <p className="mt-2 text-[11px] leading-relaxed text-[#9ca3af]">
+            Experimental · uses your browser login · may break when ChatGPT
+            changes private APIs · not affiliated with OpenAI.
           </p>
         </PathBlock>
-        <PathBlock title="B · ChatGPT Enterprise Compliance (optional)">
+        <PathBlock title="B · Codex CLI JSONL (secondary)">
           <p>
-            Set{" "}
+            Drop{" "}
+            <code className="text-[11px]">
+              ~/.codex/sessions/**/rollout-*.jsonl
+            </code>{" "}
+            below, or{" "}
+            <code className="text-[11px]">
+              node scripts/desk-push.mjs --post
+            </code>
+            .
+          </p>
+        </PathBlock>
+        <PathBlock title="C · Enterprise Compliance (optional)">
+          <p>
+            ChatGPT Enterprise/Edu only:{" "}
             <code className="text-[11px]">DESK_OPENAI_COMPLIANCE_KEY</code> +{" "}
-            <code className="text-[11px]">DESK_OPENAI_WORKSPACE_ID</code>, then
-            Sync. Requires ChatGPT Enterprise/Edu — not Plus/Team consumer.
+            <code className="text-[11px]">DESK_OPENAI_WORKSPACE_ID</code>. Skip
+            this on Plus/Pro consumer.
           </p>
         </PathBlock>
       </div>
@@ -359,10 +432,6 @@ function ChatgptCard({
       </div>
       {sync.error && sync.configured !== false ? (
         <p className="mt-3 text-xs leading-relaxed text-[#b45309]">{sync.error}</p>
-      ) : sync.configured === false ? (
-        <p className="mt-3 text-xs leading-relaxed text-[#9ca3af]">
-          No Enterprise keys — use Codex rollout import / desk-push.
-        </p>
       ) : null}
 
       <DesktopTestRow
@@ -445,10 +514,10 @@ function ImportDropCard({
         <div>
           <p className="text-sm font-medium text-[#111]">Import sessions</p>
           <p className="mt-0.5 text-xs leading-relaxed text-[#9ca3af]">
-            Drop Claude Code / Codex JSONL, or a{" "}
-            <code className="text-[11px]">desk-import.json</code> from{" "}
-            <code className="text-[11px]">scripts/desk-push.mjs</code>. Parsed
-            in your browser — nothing uploaded to Anthropic/OpenAI.
+            Secondary to the Desk Sync extension: drop Claude Code / Codex
+            JSONL, or a <code className="text-[11px]">desk-import.json</code>{" "}
+            from <code className="text-[11px]">scripts/desk-push.mjs</code>.
+            Parsed in your browser.
           </p>
         </div>
       </div>

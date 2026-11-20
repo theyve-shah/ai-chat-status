@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Desk Sync</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Desk Sync</h1>
+        <p class="lede">
+          Experimental browser sync for <strong>Pro</strong> users. Uses your
+          logged-in claude.ai / chatgpt.com session in this browser, then posts
+          only chat metadata (id, title, link, times) to Desk. Session cookies
+          never leave your browser for Anthropic/OpenAI.
+        </p>
+        <p class="warn">
+          Unofficial · may break when those sites change · not affiliated with
+          Anthropic or OpenAI · review ToS for your account.
+        </p>
+      </header>
+
+      <form id="form">
+        <label>
+          Desk base URL
+          <input
+            id="deskUrl"
+            type="url"
+            value="http://127.0.0.1:3847"
+            placeholder="http://127.0.0.1:3847"
+            required
+          />
+        </label>
+
+        <label>
+          Import token (optional)
+          <input
+            id="importToken"
+            type="password"
+            autocomplete="off"
+            placeholder="DESK_IMPORT_TOKEN if set on the server"
+          />
+        </label>
+
+        <fieldset>
+          <legend>Sources</legend>
+          <label class="row">
+            <input id="enableClaude" type="checkbox" checked />
+            Sync Claude.ai chats
+          </label>
+          <label class="row">
+            <input id="enableChatgpt" type="checkbox" checked />
+            Sync ChatGPT.com chats
+          </label>
+        </fieldset>
+
+        <label>
+          Sync interval (minutes)
+          <input id="intervalMinutes" type="number" min="1" max="60" value="5" />
+        </label>
+
+        <div class="actions">
+          <button type="submit" id="save">Save</button>
+          <button type="button" id="syncNow" class="secondary">Sync now</button>
+        </div>
+      </form>
+
+      <section class="status" aria-live="polite">
+        <h2>Last sync</h2>
+        <pre id="lastSync">No sync yet.</pre>
+      </section>
+
+      <section class="howto">
+        <h2>How it works</h2>
+        <ol>
+          <li>Stay logged into claude.ai and/or chatgpt.com in this browser.</li>
+          <li>Point Desk URL at your Desk (local or hosted).</li>
+          <li>
+            Chats are listed in-page and pushed to
+            <code>POST /api/sync/import</code>. Desk auto-pulls them onto the
+            board.
+          </li>
+        </ol>
+      </section>
+    </main>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>
