@@ -8,7 +8,7 @@ Cursor cloud agents sync from the [Cloud Agents API](https://cursor.com/docs/clo
 
 ## Features
 
-- **Cursor auto-sync** via `DESK_CURSOR_API_KEY` (Sync now + 5‑minute refresh)
+- **Cursor auto-sync** via `DESK_CURSOR_API_KEY` (Sync now + 60s refresh when configured)
 - Statuses as icons (click to cycle): needs approval · working · done · dormant
 - **Connect** screen: API sync for Cursor; deep-link Open prefs for Claude / ChatGPT
 - Desktop deep links (`claude://`, `codex://`, `cursor://…`) or web URLs
