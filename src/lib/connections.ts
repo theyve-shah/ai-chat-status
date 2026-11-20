@@ -1,3 +1,4 @@
+import { TOOL_GUIDES } from "@/lib/tool-guides";
 import type { Tool, TrackedChat } from "@/lib/types";
 
 export type OpenPrefer = "app" | "web";
@@ -5,32 +6,33 @@ export type OpenPrefer = "app" | "web";
 export type ToolConnection = {
   connected: boolean;
   preferred: OpenPrefer;
+  /** Unused for open resolution now — kept for saved prefs compatibility. */
   appScheme: string;
   webUrl: string;
 };
 
 export type ConnectionsState = Record<Tool, ToolConnection>;
 
-export const CONNECTIONS_KEY = "desk.connections.v1";
+export const CONNECTIONS_KEY = "desk.connections.v2";
 
 export const DEFAULT_CONNECTIONS: ConnectionsState = {
   claude: {
     connected: false,
     preferred: "app",
-    appScheme: "claude://",
-    webUrl: "https://claude.ai",
+    appScheme: TOOL_GUIDES.claude.testAppHref,
+    webUrl: TOOL_GUIDES.claude.webUrl,
   },
   codex: {
     connected: false,
     preferred: "app",
-    appScheme: "chatgpt://",
-    webUrl: "https://chatgpt.com",
+    appScheme: TOOL_GUIDES.codex.testAppHref,
+    webUrl: TOOL_GUIDES.codex.webUrl,
   },
   cursor: {
     connected: false,
     preferred: "app",
-    appScheme: "cursor://",
-    webUrl: "https://cursor.com",
+    appScheme: TOOL_GUIDES.cursor.testAppHref,
+    webUrl: TOOL_GUIDES.cursor.webUrl,
   },
 };
 
@@ -61,31 +63,76 @@ export type OpenTargets = {
   chatHref: string | null;
 };
 
-function normalizeScheme(value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) return "";
-  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)) return trimmed;
-  if (/^[a-z][a-z0-9+.-]*:$/i.test(trimmed)) return `${trimmed}//`;
-  if (/^[a-z][a-z0-9+.-]*:\/?$/i.test(trimmed)) {
-    return trimmed.endsWith("://") ? trimmed : `${trimmed.replace(/:?\/?$/, "")}://`;
+/** Map a pasted https URL to a documented desktop deep link when possible. */
+export function httpsToAppDeepLink(
+  tool: Tool,
+  link: string,
+): string | null {
+  const trimmed = link.trim();
+  if (!trimmed || !/^https?:\/\//i.test(trimmed)) return null;
+
+  try {
+    const url = new URL(trimmed);
+
+    if (tool === "claude") {
+      const host = url.hostname.replace(/^www\./, "");
+      if (host !== "claude.ai") return null;
+      const chat = url.pathname.match(/^\/chat\/([^/]+)/);
+      if (chat) return `claude://claude.ai/chat/${chat[1]}`;
+      const project = url.pathname.match(/^\/project\/([^/]+)/);
+      if (project) return `claude://claude.ai/project/${project[1]}`;
+      const code = url.pathname.match(/^\/code\/?(.*)/);
+      if (code) return `claude://code/${code[1] || "new"}`;
+      return "claude://claude.ai/new";
+    }
+
+    if (tool === "codex") {
+      const host = url.hostname.replace(/^www\./, "");
+      if (host === "chatgpt.com" || host === "chat.openai.com") {
+        const thread = url.pathname.match(/^\/c\/([^/]+)/);
+        if (thread) return `codex://threads/${thread[1]}`;
+      }
+      return null;
+    }
+
+    if (tool === "cursor") {
+      const host = url.hostname.replace(/^www\./, "");
+      if (host !== "cursor.com" && host !== "www.cursor.com") return null;
+      const agent = url.pathname.match(/^\/agents\/(bc-[^/?#]+)/);
+      if (agent) {
+        return `cursor://anysphere.cursor-deeplink/background-agent?bcId=${agent[1]}`;
+      }
+      return null;
+    }
+  } catch {
+    return null;
   }
-  return trimmed;
+
+  return null;
 }
 
 export function resolveOpenTargets(
   chat: Pick<TrackedChat, "tool" | "link">,
   connection: ToolConnection,
 ): OpenTargets {
-  const appHref =
-    normalizeScheme(connection.appScheme) ||
-    DEFAULT_CONNECTIONS[chat.tool].appScheme;
+  const guide = TOOL_GUIDES[chat.tool];
   const link = chat.link.trim();
   const isCustomScheme = Boolean(link) && !/^https?:\/\//i.test(link);
   const isHttp = /^https?:\/\//i.test(link);
 
+  const mappedApp = isHttp ? httpsToAppDeepLink(chat.tool, link) : null;
+
+  const appHref = isCustomScheme
+    ? link
+    : mappedApp || connection.appScheme || guide.testAppHref;
+
+  const webHref = isHttp
+    ? link
+    : connection.webUrl || guide.webUrl;
+
   return {
-    appHref: isCustomScheme ? link : appHref,
-    webHref: isHttp ? link : connection.webUrl || DEFAULT_CONNECTIONS[chat.tool].webUrl,
+    appHref,
+    webHref,
     chatHref: link || null,
   };
 }

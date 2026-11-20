@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { TOOL_GUIDES } from "@/lib/tool-guides";
 import {
   KINDS,
   STATUSES,
@@ -78,7 +79,8 @@ export function ChatFormDialog({
             {initial ? "Edit chat" : "Add chat"}
           </DialogTitle>
           <DialogDescription>
-            Paste a chat URL or app deep link so Open can jump straight there.
+            Paste the chat / agent URL from that product so Open can jump
+            straight there.
           </DialogDescription>
         </DialogHeader>
         <form className="grid gap-4" onSubmit={handleSubmit}>
@@ -157,13 +159,16 @@ export function ChatFormDialog({
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="link">Chat link / deep link</Label>
+            <Label htmlFor="link">Chat / agent link</Label>
             <Input
               id="link"
               value={draft.link}
               onChange={(e) => setDraft({ ...draft, link: e.target.value })}
-              placeholder="https://… or cursor:// / claude:// / chatgpt://"
+              placeholder={TOOL_GUIDES[draft.tool].linkExamples[0]}
             />
+            <p className="text-[11px] leading-relaxed text-[#9ca3af]">
+              {TOOL_GUIDES[draft.tool].chatLinkHint}
+            </p>
           </div>
           <DialogFooter>
             <Button

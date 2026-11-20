@@ -9,10 +9,10 @@ No APIs, no extensions — you add chats yourself and update status when you che
 ## Features
 
 - Statuses as icons (click to cycle): needs approval · working · done · dormant
-- **Connect** screen with install links + step-by-step setup for Claude, Codex/ChatGPT, and Cursor
-- Mac app schemes (`claude://`, `chatgpt://`, `cursor://`) or web URLs
-- Per-chat Open button for the preferred Mac app or browser link
-- Optional chat deep link / URL on each row
+- **Connect** screen with official deep-link steps for Claude, ChatGPT/Codex, and Cursor
+- Desktop deep links (`claude://`, `codex://`, `cursor://…`) or web URLs
+- Per-chat Open button for the preferred desktop app or browser link
+- Optional chat / agent deep link on each row
 - Optional password gate for hosted deploys
 
 ## Quick start
@@ -28,10 +28,17 @@ Chat + Connect data stays in your browser (`localStorage`). No database.
 
 ## How to connect tools
 
-1. Open **Connect** in the left nav (or the home banner).
-2. For each tool: install the Mac app → tap **Connect** → **Test Mac app** once (allow the browser prompt).
-3. Prefer **Mac app** or **Web**.
-4. When adding a chat, paste that chat’s URL if you want Open to jump to the exact thread.
+Desk does not sync chats via APIs. Connect only wires **Open** to each product’s documented deep links / website.
+
+1. Open **Connect** in the left nav.
+2. For each tool: install from the official download link → follow the numbered steps → **Test desktop** (or open web).
+3. Prefer **Desktop app** or **Web**.
+4. When adding a chat, paste the product’s chat / agent URL (or deep link). Examples:
+   - Claude: `https://claude.ai/chat/<id>` or `claude://claude.ai/chat/<id>`
+   - ChatGPT/Codex: `codex://threads/<id>` (⌘⌥L in the desktop app) or `https://chatgpt.com/c/<id>`
+   - Cursor: `https://cursor.com/agents/bc-…`
+
+Docs: [Claude deep links](https://support.claude.com/en/articles/14729294-open-claude-desktop-with-a-link) · [ChatGPT deep links](https://learn.chatgpt.com/docs/reference/commands#deep-links) · [Cursor deeplinks](https://cursor.com/docs/reference/deeplinks)
 
 ## Hosted deploy (Vercel)
 
