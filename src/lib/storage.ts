@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  SAMPLE_CHATS,
-  STORAGE_KEY,
-  type TrackedChat,
-} from "@/lib/types";
+import { STORAGE_KEY, type TrackedChat } from "@/lib/types";
 
 function isChat(value: unknown): value is TrackedChat {
   if (!value || typeof value !== "object") return false;
@@ -24,19 +20,15 @@ function isChat(value: unknown): value is TrackedChat {
 }
 
 export function loadChats(): TrackedChat[] {
-  if (typeof window === "undefined") return SAMPLE_CHATS;
+  if (typeof window === "undefined") return [];
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(SAMPLE_CHATS));
-      return SAMPLE_CHATS;
-    }
+    if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return SAMPLE_CHATS;
-    const chats = parsed.filter(isChat);
-    return chats.length > 0 ? chats : SAMPLE_CHATS;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(isChat);
   } catch {
-    return SAMPLE_CHATS;
+    return [];
   }
 }
 

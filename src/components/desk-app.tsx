@@ -42,7 +42,6 @@ import {
   MessageSquare,
   Pencil,
   Plus,
-  RotateCcw,
   Search,
   Trash2,
 } from "lucide-react";
@@ -63,7 +62,6 @@ export function DeskApp() {
     archiveChat,
     restoreChat,
     removeChat,
-    resetSamples,
   } = useChats();
   const { connections, ready: connectionsReady, updateTool } = useConnections();
 
@@ -256,14 +254,6 @@ export function DeskApp() {
             />
             <button
               type="button"
-              onClick={resetSamples}
-              className="flex w-full items-center gap-1.5 rounded-md px-1 py-1 text-left text-[11px] text-[#9ca3af] transition hover:text-[#111]"
-            >
-              <RotateCcw className="size-3" />
-              Reset samples
-            </button>
-            <button
-              type="button"
               onClick={async () => {
                 await fetch("/api/auth/logout", { method: "POST" });
                 window.location.href = "/login";
@@ -350,25 +340,34 @@ export function DeskApp() {
                     onSelect={selectLane}
                   />
 
-                  {STATUSES.map((status) => {
-                    const group = visible.filter((c) => c.status === status.id);
-                    return (
-                      <StatusSection
-                        key={status.id}
-                        title={status.label}
-                        status={status.id}
-                        chats={group}
-                        empty="—"
-                        connections={connState}
-                        onAdd={() => openCreate(status.id)}
-                        onStatus={setStatus}
-                        onEdit={openEdit}
-                        onArchive={archiveChat}
-                        archiveLabel="Archive"
-                        onRemove={removeChat}
-                      />
-                    );
-                  })}
+                  {counts.all === 0 ? (
+                    <EmptyBoard
+                      onConnect={() => setView("connect")}
+                      onAdd={() => openCreate("working")}
+                    />
+                  ) : (
+                    STATUSES.map((status) => {
+                      const group = visible.filter(
+                        (c) => c.status === status.id,
+                      );
+                      return (
+                        <StatusSection
+                          key={status.id}
+                          title={status.label}
+                          status={status.id}
+                          chats={group}
+                          empty="—"
+                          connections={connState}
+                          onAdd={() => openCreate(status.id)}
+                          onStatus={setStatus}
+                          onEdit={openEdit}
+                          onArchive={archiveChat}
+                          archiveLabel="Archive"
+                          onRemove={removeChat}
+                        />
+                      );
+                    })
+                  )}
                 </div>
               )}
             </>
@@ -383,6 +382,43 @@ export function DeskApp() {
         defaultStatus={defaultStatus}
         onSubmit={handleSubmit}
       />
+    </div>
+  );
+}
+
+function EmptyBoard({
+  onConnect,
+  onAdd,
+}: {
+  onConnect: () => void;
+  onAdd: () => void;
+}) {
+  return (
+    <div className="rounded-2xl px-1 py-16 text-center">
+      <p className="text-sm font-medium text-[#111]">No chats yet</p>
+      <p className="mx-auto mt-1.5 max-w-sm text-sm text-[#9ca3af]">
+        Connect Claude, ChatGPT/Codex, and Cursor, then add the chats you want
+        to check in on.
+      </p>
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onConnect}
+          className="h-9 rounded-full px-4"
+        >
+          <Link2 className="size-3.5" />
+          Connect tools
+        </Button>
+        <Button
+          type="button"
+          onClick={onAdd}
+          className="h-9 gap-1.5 rounded-full px-4"
+        >
+          <Plus className="size-4" />
+          Add chat
+        </Button>
+      </div>
     </div>
   );
 }

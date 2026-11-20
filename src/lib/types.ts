@@ -94,7 +94,7 @@ export const STATUSES: {
   },
 ];
 
-export const STORAGE_KEY = "desk.chats.v2";
+export const STORAGE_KEY = "desk.chats.v3";
 
 export function emptyDraft(overrides: Partial<ChatDraft> = {}): ChatDraft {
   return {
@@ -123,78 +123,3 @@ export function createChat(draft: ChatDraft): TrackedChat {
     archived: false,
   };
 }
-
-export const SAMPLE_CHATS: TrackedChat[] = [
-  {
-    id: "sample-1",
-    title: "Checkout flow redesign",
-    tool: "cursor",
-    kind: "code",
-    status: "needs_approval",
-    note: "Diff ready — confirm copy on CTA",
-    link: "https://cursor.com/agents",
-    createdAt: "2026-11-20T06:00:00.000Z",
-    updatedAt: "2026-11-20T08:40:00.000Z",
-    archived: false,
-  },
-  {
-    id: "sample-2",
-    title: "Founder pulse research notes",
-    tool: "claude",
-    kind: "chat",
-    status: "working",
-    note: "Still summarizing competitor decks",
-    link: "https://claude.ai",
-    createdAt: "2026-11-20T05:30:00.000Z",
-    updatedAt: "2026-11-20T08:10:00.000Z",
-    archived: false,
-  },
-  {
-    id: "sample-3",
-    title: "API route auth hardening",
-    tool: "codex",
-    kind: "code",
-    status: "working",
-    note: "Writing tests for edge cases",
-    link: "https://chatgpt.com",
-    createdAt: "2026-11-20T04:15:00.000Z",
-    updatedAt: "2026-11-20T07:55:00.000Z",
-    archived: false,
-  },
-  {
-    id: "sample-4",
-    title: "Landing page hero rewrite",
-    tool: "cursor",
-    kind: "chat",
-    status: "done",
-    note: "Merged this morning",
-    link: "cursor://",
-    createdAt: "2026-11-19T14:00:00.000Z",
-    updatedAt: "2026-11-20T03:20:00.000Z",
-    archived: false,
-  },
-  {
-    id: "sample-5",
-    title: "Pricing page copy experiments",
-    tool: "claude",
-    kind: "chat",
-    status: "dormant",
-    note: "Parked after last sprint — revisit next quarter",
-    link: "https://claude.ai",
-    createdAt: "2026-10-28T09:00:00.000Z",
-    updatedAt: "2026-11-02T12:00:00.000Z",
-    archived: false,
-  },
-  {
-    id: "sample-6",
-    title: "Legacy webhook cleanup",
-    tool: "codex",
-    kind: "code",
-    status: "dormant",
-    note: "No activity in weeks — leave until on-call asks",
-    link: "https://chatgpt.com",
-    createdAt: "2026-10-12T16:00:00.000Z",
-    updatedAt: "2026-10-25T18:30:00.000Z",
-    archived: false,
-  },
-];

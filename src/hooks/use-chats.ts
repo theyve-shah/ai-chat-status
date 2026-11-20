@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { loadChats, saveChats } from "@/lib/storage";
 import {
-  SAMPLE_CHATS,
   createChat,
   type ChatDraft,
   type Status,
@@ -56,8 +55,8 @@ export function useChats() {
     setChats((prev) => prev.filter((chat) => chat.id !== id));
   }
 
-  function resetSamples() {
-    setChats(SAMPLE_CHATS.map((chat) => ({ ...chat })));
+  function clearAll() {
+    setChats([]);
   }
 
   return {
@@ -69,6 +68,6 @@ export function useChats() {
     archiveChat,
     restoreChat,
     removeChat,
-    resetSamples,
+    clearAll,
   };
 }
