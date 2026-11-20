@@ -2,37 +2,55 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import type { Tool } from "@/lib/types";
 
+/** Claude Code mark — https://thesvg.org/icon/claude-code */
 function ClaudeLogo({ className }: { className?: string }) {
-  // Anthropic-style starburst
   return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      aria-hidden
+      fill="currentColor"
+      fillRule="evenodd"
+    >
       <path
-        fill="currentColor"
-        d="M12 2.2 13.1 9l6.7-2.1-4.6 5.1 5.1 4.6-6.9-1.4L12 21.8l-1.4-6.6-6.9 1.4 5.1-4.6L4.2 6.9 10.9 9 12 2.2Z"
+        clipRule="evenodd"
+        d="M20.998 10.949H24v3.102h-3v3.028h-1.487V20H18v-2.921h-1.487V20H15v-2.921H9V20H7.488v-2.921H6V20H4.487v-2.921H3V14.05H0V10.95h3V5h17.998v5.949zM6 10.949h1.488V8.102H6v2.847zm10.51 0H18V8.102h-1.49v2.847z"
       />
     </svg>
   );
 }
 
+/** Codex mark — https://lobehub.com/icons/codex (OpenAI Codex) */
 function CodexLogo({ className }: { className?: string }) {
-  // OpenAI-style blossom
   return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      aria-hidden
+      fill="currentColor"
+      fillRule="evenodd"
+    >
       <path
-        fill="currentColor"
-        d="M22.28 9.82a5.98 5.98 0 0 0-5.15-5.1 6.02 6.02 0 0 0-7.5-3.03A6.01 6.01 0 0 0 4.1 5.1 5.98 5.98 0 0 0 .72 9.82a6.02 6.02 0 0 0 1.98 6.35 5.99 5.99 0 0 0 2.1 5.53 6.02 6.02 0 0 0 7.2.2 5.99 5.99 0 0 0 7.2-.2 6.01 6.01 0 0 0 2.1-5.53 6.02 6.02 0 0 0 1.98-6.35ZM12 16.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z"
+        clipRule="evenodd"
+        d="M8.086.457a6.105 6.105 0 013.046-.415c1.333.153 2.521.72 3.564 1.7a.117.117 0 00.107.029c1.408-.346 2.762-.224 4.061.366l.063.03.154.076c1.357.703 2.33 1.77 2.918 3.198.278.679.418 1.388.421 2.126a5.655 5.655 0 01-.18 1.631.167.167 0 00.04.155 5.982 5.982 0 011.578 2.891c.385 1.901-.01 3.615-1.183 5.14l-.182.22a6.063 6.063 0 01-2.934 1.851.162.162 0 00-.108.102c-.255.736-.511 1.364-.987 1.992-1.199 1.582-2.962 2.462-4.948 2.451-1.583-.008-2.986-.587-4.21-1.736a.145.145 0 00-.14-.032c-.518.167-1.04.191-1.604.185a5.924 5.924 0 01-2.595-.622 6.058 6.058 0 01-2.146-1.781c-.203-.269-.404-.522-.551-.821a7.74 7.74 0 01-.495-1.283 6.11 6.11 0 01-.017-3.064.166.166 0 00.008-.074.115.115 0 00-.037-.064 5.958 5.958 0 01-1.38-2.202 5.196 5.196 0 01-.333-1.589 6.915 6.915 0 01.188-2.132c.45-1.484 1.309-2.648 2.577-3.493.282-.188.55-.334.802-.438.286-.12.573-.22.861-.304a.129.129 0 00.087-.087A6.016 6.016 0 015.635 2.31C6.315 1.464 7.132.846 8.086.457zm-.804 7.85a.848.848 0 00-1.473.842l1.694 2.965-1.688 2.848a.849.849 0 001.46.864l1.94-3.272a.849.849 0 00.007-.854l-1.94-3.393zm5.446 6.24a.849.849 0 000 1.695h4.848a.849.849 0 000-1.696h-4.848z"
       />
     </svg>
   );
 }
 
+/**
+ * Cursor cube — https://cursor.com/brand
+ * Glyph extracted from the official 2D cube mark.
+ */
 function CursorLogo({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden>
-      <path
-        fill="currentColor"
-        d="M4.8 3.2c-.6-.3-1.3.3-1.1 1l4.9 14.8c.3.8 1.4.7 1.6-.1l2-5.7 5.7-2c.8-.3.9-1.3.1-1.6L4.8 3.2Z"
-      />
+    <svg
+      viewBox="675 359 250 282"
+      className={className}
+      aria-hidden
+      fill="currentColor"
+    >
+      <path d="M920.015 424.958L805.919 359.086C802.256 356.97 797.735 356.97 794.071 359.086L679.981 424.958C676.901 426.736 675 430.025 675 433.587V566.419C675 569.981 676.901 573.269 679.981 575.048L794.077 640.92C797.74 643.036 802.261 643.036 805.925 640.92L920.02 575.048C923.1 573.269 925.001 569.981 925.001 566.419V433.587C925.001 430.025 923.1 426.736 920.02 424.958H920.015ZM912.848 438.911L802.706 629.682C801.961 630.968 799.995 630.443 799.995 628.954V504.039C799.995 501.543 798.662 499.234 796.498 497.981L688.321 435.526C687.036 434.781 687.561 432.816 689.05 432.816H909.334C912.462 432.816 914.417 436.206 912.853 438.917H912.848V438.911Z" />
     </svg>
   );
 }
@@ -52,12 +70,13 @@ const MARK: Record<
   },
   codex: {
     Logo: CodexLogo,
-    className: "bg-[#ecfdf3] text-[#10a37f]",
+    // Codex / OpenAI product tint — https://openai.com/brand/
+    className: "bg-[#eef0ff] text-[#3941ff]",
     title: "Codex",
   },
   cursor: {
     Logo: CursorLogo,
-    className: "bg-[#111] text-white",
+    className: "bg-[#14120b] text-[#edecec]",
     title: "Cursor",
   },
 };
