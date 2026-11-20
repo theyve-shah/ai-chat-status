@@ -2,7 +2,36 @@ export type Tool = "claude" | "codex" | "cursor";
 export type Kind = "chat" | "code";
 export type Status = "needs_approval" | "working" | "done" | "dormant";
 
-export type ChatSource = "manual" | "cursor";
+/** Provenance for synced / imported rows (distinct from manual adds). */
+export type ChatSource =
+  | "manual"
+  | "cursor"
+  | "claude"
+  | "chatgpt"
+  | "claude_code"
+  | "codex"
+  | "import";
+
+export const SYNC_SOURCES: ChatSource[] = [
+  "cursor",
+  "claude",
+  "chatgpt",
+  "claude_code",
+  "codex",
+  "import",
+];
+
+export function isChatSource(value: unknown): value is ChatSource {
+  return (
+    value === "manual" ||
+    value === "cursor" ||
+    value === "claude" ||
+    value === "chatgpt" ||
+    value === "claude_code" ||
+    value === "codex" ||
+    value === "import"
+  );
+}
 
 export type TrackedChat = {
   id: string;

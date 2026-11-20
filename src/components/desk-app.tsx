@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useChats } from "@/hooks/use-chats";
 import { useConnections } from "@/hooks/use-connections";
-import { useCursorSync } from "@/hooks/use-cursor-sync";
+import { useProviderSync } from "@/hooks/use-provider-sync";
 import {
   DEFAULT_CONNECTIONS,
   openHref,
@@ -68,7 +68,19 @@ export function DeskApp() {
     mergeFromSync,
   } = useChats();
   const { connections, ready: connectionsReady, updateTool } = useConnections();
-  const cursorSync = useCursorSync(mergeFromSync);
+  const cursorSync = useProviderSync("cursor", mergeFromSync, {
+    autoRefresh: true,
+  });
+  const claudeSync = useProviderSync("claude", mergeFromSync, {
+    autoRefresh: false,
+  });
+  const chatgptSync = useProviderSync("chatgpt", mergeFromSync, {
+    autoRefresh: false,
+  });
+
+  function importChats(chats: TrackedChat[]) {
+    mergeFromSync(chats, { pruneMissing: false });
+  }
 
   const [view, setView] = useState<View>("board");
   const [toolFilter, setToolFilter] = useState<ToolFilter>("all");
@@ -276,7 +288,8 @@ export function DeskApp() {
             <ConnectPanel
               connections={connState}
               onChange={updateTool}
-              sync={{
+              onImportChats={importChats}
+              cursorSync={{
                 configured: cursorSync.configured,
                 syncing: cursorSync.syncing,
                 lastSyncedAt: cursorSync.lastSyncedAt,
@@ -284,6 +297,28 @@ export function DeskApp() {
                 error: cursorSync.error,
                 onSync: () => {
                   void cursorSync.sync();
+                },
+              }}
+              claudeSync={{
+                configured: claudeSync.configured,
+                syncing: claudeSync.syncing,
+                lastSyncedAt: claudeSync.lastSyncedAt,
+                lastCount: claudeSync.lastCount,
+                error: claudeSync.error,
+                enterpriseOnly: claudeSync.enterpriseOnly,
+                onSync: () => {
+                  void claudeSync.sync();
+                },
+              }}
+              chatgptSync={{
+                configured: chatgptSync.configured,
+                syncing: chatgptSync.syncing,
+                lastSyncedAt: chatgptSync.lastSyncedAt,
+                lastCount: chatgptSync.lastCount,
+                error: chatgptSync.error,
+                enterpriseOnly: chatgptSync.enterpriseOnly,
+                onSync: () => {
+                  void chatgptSync.sync();
                 },
               }}
             />
@@ -456,8 +491,8 @@ function EmptyBoard({
     <div className="rounded-2xl px-1 py-16 text-center">
       <p className="text-sm font-medium text-[#111]">No chats yet</p>
       <p className="mx-auto mt-1.5 max-w-sm text-sm text-[#9ca3af]">
-        Sync Cursor cloud agents from the API, or add Claude / ChatGPT chats
-        manually.
+        Sync Cursor from the API, import Claude Code / Codex sessions, or add
+        chats manually.
       </p>
       <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
         <Button

@@ -1,12 +1,13 @@
 "use client";
 
-import { STORAGE_KEY, type ChatSource, type TrackedChat } from "@/lib/types";
+import {
+  isChatSource,
+  STORAGE_KEY,
+  type ChatSource,
+  type TrackedChat,
+} from "@/lib/types";
 
 const LEGACY_KEYS = ["desk.chats.v3", "desk.chats.v2"];
-
-function isChatSource(value: unknown): value is ChatSource {
-  return value === "manual" || value === "cursor";
-}
 
 function isChat(value: unknown): value is TrackedChat {
   if (!value || typeof value !== "object") return false;
@@ -64,29 +65,57 @@ export function saveChats(chats: TrackedChat[]): void {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(chats));
 }
 
-function syncedExternalId(chat: TrackedChat): string | null {
-  if (chat.source === "cursor" && chat.externalId) return chat.externalId;
-  if (chat.externalId && chat.id.startsWith("cursor:")) return chat.externalId;
-  const match = /^cursor:(.+)$/.exec(chat.id);
-  return match?.[1] ?? null;
+function syncKey(chat: TrackedChat): string | null {
+  if (chat.source && chat.source !== "manual" && chat.externalId) {
+    return `${chat.source}:${chat.externalId}`;
+  }
+  if (chat.externalId) {
+    const prefix = chat.id.includes(":")
+      ? chat.id.split(":")[0]
+      : chat.source ?? null;
+    if (prefix && prefix !== "manual") return `${prefix}:${chat.externalId}`;
+  }
+  const match = /^(cursor|claude|chatgpt|claude_code|codex|import):(.+)$/.exec(
+    chat.id,
+  );
+  return match ? `${match[1]}:${match[2]}` : null;
 }
 
+export type MergeOptions = {
+  /**
+   * When true (default for API polls), drop existing rows for sources present
+   * in `incoming` that are missing from this batch.
+   * File/import upserts should pass false.
+   */
+  pruneMissing?: boolean;
+};
+
 /**
- * Upsert API rows by externalId (source=cursor).
- * Preserves manual chats. Overwrites status/title/link/note/archived from API.
+ * Upsert synced rows by source:externalId.
+ * Preserves manual chats and other sources not in this batch.
  */
 export function mergeSyncedChats(
   existing: TrackedChat[],
   incoming: TrackedChat[],
+  opts: MergeOptions = {},
 ): TrackedChat[] {
-  const byExternal = new Map<string, TrackedChat>();
+  const pruneMissing = opts.pruneMissing ?? true;
+
+  const byKey = new Map<string, TrackedChat>();
+  const sourcesInBatch = new Set<ChatSource>();
+
   for (const chat of incoming) {
-    const externalId = chat.externalId ?? syncedExternalId(chat);
-    if (!externalId) continue;
-    byExternal.set(externalId, {
+    const key = syncKey(chat);
+    if (!key) continue;
+    const source = (chat.source ?? key.split(":")[0]) as ChatSource;
+    sourcesInBatch.add(source);
+    byKey.set(key, {
       ...chat,
-      source: "cursor",
-      externalId,
+      source,
+      externalId: chat.externalId ?? key.slice(key.indexOf(":") + 1),
+      id: chat.id.startsWith(`${source}:`)
+        ? chat.id
+        : `${source}:${chat.externalId ?? key.slice(key.indexOf(":") + 1)}`,
     });
   }
 
@@ -94,11 +123,12 @@ export function mergeSyncedChats(
   const seen = new Set<string>();
 
   for (const chat of existing) {
-    const externalId = syncedExternalId(chat);
-    if (externalId) {
-      const next = byExternal.get(externalId);
+    const key = syncKey(chat);
+    if (key) {
+      const source = key.split(":")[0] as ChatSource;
+      const next = byKey.get(key);
       if (next) {
-        seen.add(externalId);
+        seen.add(key);
         result.push({
           ...chat,
           title: next.title,
@@ -107,22 +137,24 @@ export function mergeSyncedChats(
           link: next.link,
           archived: next.archived,
           updatedAt: next.updatedAt,
-          tool: "cursor",
+          tool: next.tool,
           kind: next.kind ?? chat.kind,
-          source: "cursor",
-          externalId,
-          // Prefer stable cursor: id from API when local already used that form
-          id: chat.id.startsWith("cursor:") ? next.id : chat.id,
+          source: next.source,
+          externalId: next.externalId,
+          id: chat.id.startsWith(`${source}:`) ? next.id : chat.id,
         });
+        continue;
       }
-      // Dropped from API → remove
-      continue;
+      if (pruneMissing && sourcesInBatch.has(source)) {
+        // Dropped from this source's API listing
+        continue;
+      }
     }
     result.push(chat);
   }
 
-  for (const [externalId, chat] of byExternal) {
-    if (!seen.has(externalId)) result.push(chat);
+  for (const [key, chat] of byKey) {
+    if (!seen.has(key)) result.push(chat);
   }
 
   return result.sort(

@@ -59,9 +59,12 @@ export function useChats() {
     setChats([]);
   }
 
-  /** Merge Cursor Cloud Agents API rows; preserve manual chats. */
-  function mergeFromSync(synced: TrackedChat[]) {
-    setChats((prev) => mergeSyncedChats(prev, synced));
+  /** Merge synced/imported rows; preserves manual chats. */
+  function mergeFromSync(
+    synced: TrackedChat[],
+    opts?: { pruneMissing?: boolean },
+  ) {
+    setChats((prev) => mergeSyncedChats(prev, synced, opts));
   }
 
   return {
