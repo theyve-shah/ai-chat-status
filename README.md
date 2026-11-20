@@ -19,6 +19,17 @@ No APIs, no extensions — you add chats yourself and update status when you che
 3. Prefer **Mac app** or **Web**.
 4. When adding a chat on Desk, paste that chat’s URL if you want Open to jump to the exact thread; otherwise Open launches the app/site.
 
+## Auth (required on Vercel)
+
+Desk is gated by a shared password so strangers cannot open your Connect settings.
+
+Set these on Vercel (Project → Settings → Environment Variables):
+
+- `DESK_PASSWORD` — your private password
+- `DESK_SESSION_SECRET` — long random string used to sign the session cookie
+
+Locally, if those are unset, the app stays open for development.
+
 ## Run locally
 
 ```bash
@@ -28,4 +39,4 @@ npm run dev
 
 Open [http://127.0.0.1:3847](http://127.0.0.1:3847).
 
-Data stays in browser `localStorage`.
+Chat + Connect data stays in browser `localStorage` (no database). Auth only locks the page.

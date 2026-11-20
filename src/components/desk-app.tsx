@@ -34,6 +34,7 @@ import {
   ExternalLink,
   Home,
   Link2,
+  LogOut,
   MessageSquare,
   Pencil,
   Plus,
@@ -229,6 +230,17 @@ export function DeskApp() {
             >
               <RotateCcw className="size-3.5" />
               Reset samples
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                await fetch("/api/auth/logout", { method: "POST" });
+                window.location.href = "/login";
+              }}
+              className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-xs text-[#9ca3af] transition hover:text-[#111]"
+            >
+              <LogOut className="size-3.5" />
+              Sign out
             </button>
           </div>
         </aside>
