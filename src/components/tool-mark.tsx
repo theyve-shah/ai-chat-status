@@ -65,18 +65,17 @@ const MARK: Record<
 > = {
   claude: {
     Logo: ClaudeLogo,
-    className: "bg-[#f3ebe3] text-[#d97757]",
+    className: "text-[#d97757]",
     title: "Claude",
   },
   codex: {
     Logo: CodexLogo,
-    // Codex / OpenAI product tint — https://openai.com/brand/
-    className: "bg-[#eef0ff] text-[#3941ff]",
+    className: "text-[#3941ff]",
     title: "Codex",
   },
   cursor: {
     Logo: CursorLogo,
-    className: "bg-[#14120b] text-[#edecec]",
+    className: "text-[#14120b]",
     title: "Cursor",
   },
 };
@@ -90,16 +89,13 @@ export function ToolMark({
 }) {
   const mark = MARK[tool];
   const Logo = mark.Logo;
+  const box = size === "sm" ? "size-4" : "size-5";
   return (
     <span
       aria-label={mark.title}
-      className={cn(
-        "inline-flex items-center justify-center rounded-full",
-        mark.className,
-        size === "sm" ? "size-5" : "size-7",
-      )}
+      className={cn("inline-flex shrink-0 items-center justify-center", box)}
     >
-      <Logo className={size === "sm" ? "size-3" : "size-3.5"} />
+      <Logo className={cn("size-full", mark.className)} />
     </span>
   );
 }
