@@ -296,7 +296,7 @@ export function DeskApp() {
                 />
               ) : (
                 <div className="space-y-10">
-                  {counts.connected === 0 ? (
+                  {counts.connected < 3 ? (
                     <button
                       type="button"
                       onClick={() => setView("connect")}
@@ -308,14 +308,19 @@ export function DeskApp() {
                         </span>
                         <div>
                           <p className="text-sm font-medium">
-                            Connect your Mac apps
+                            {counts.connected === 0
+                              ? "Connect Claude, Codex, and Cursor"
+                              : `${counts.connected}/3 tools connected`}
                           </p>
                           <p className="text-xs text-[#9ca3af]">
-                            Open Claude, Codex, and Cursor from Desk
+                            Install apps → Connect → Test Open. Steps are on the
+                            Connect page.
                           </p>
                         </div>
                       </div>
-                      <span className="text-xs text-[#6b7280]">Set up →</span>
+                      <span className="text-xs text-[#6b7280]">
+                        {counts.connected === 0 ? "How to →" : "Finish →"}
+                      </span>
                     </button>
                   ) : null}
 
