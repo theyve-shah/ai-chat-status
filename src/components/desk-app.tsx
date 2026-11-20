@@ -544,7 +544,7 @@ function ChatRow({
             <p className="truncate text-sm font-medium tracking-tight text-[#111]">
               {chat.title}
             </p>
-            <ToolMark tool={chat.tool} />
+            <ToolMark tool={chat.tool} kind={chat.kind} />
             <span
               aria-label={KINDS.find((k) => k.id === chat.kind)?.label}
               className="inline-flex size-6 items-center justify-center rounded-full bg-white text-[#9ca3af] ring-1 ring-[#ececec]"
