@@ -100,7 +100,7 @@ function CursorSyncCard({
             <p className="mt-0.5 text-xs leading-relaxed text-[#9ca3af]">
               Lists your cloud agents from{" "}
               <code className="text-[11px]">api.cursor.com/v1/agents</code> and
-              refreshes the board every 5 minutes when configured.
+              refreshes the board every minute when configured.
             </p>
           </div>
         </div>
