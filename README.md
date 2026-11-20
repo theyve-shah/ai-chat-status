@@ -8,7 +8,7 @@ No APIs, no extensions — you add chats yourself and update status when you che
 
 ## Features
 
-- Statuses as icons (click to cycle): needs approval · working · done
+- Statuses as icons (click to cycle): needs approval · working · done · dormant
 - **Connect** screen with install links + step-by-step setup for Claude, Codex/ChatGPT, and Cursor
 - Mac app schemes (`claude://`, `chatgpt://`, `cursor://`) or web URLs
 - Per-chat Open button for the preferred Mac app or browser link

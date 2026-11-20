@@ -95,6 +95,7 @@ export function DeskApp() {
         .length,
       working: active.filter((c) => c.status === "working").length,
       done: active.filter((c) => c.status === "done").length,
+      dormant: active.filter((c) => c.status === "dormant").length,
       archived: chats.filter((c) => c.archived).length,
       connected: connections
         ? TOOLS.filter((t) => connections[t.id].connected).length
@@ -267,6 +268,10 @@ export function DeskApp() {
                     <StatusMark status="done" size="sm" />
                     <span className="text-[11px] tabular-nums text-[#9ca3af]">
                       {counts.done}
+                    </span>
+                    <StatusMark status="dormant" size="sm" />
+                    <span className="text-[11px] tabular-nums text-[#9ca3af]">
+                      {counts.dormant}
                     </span>
                   </div>
                   <h1 className="text-3xl font-medium tracking-tight md:text-[2rem]">

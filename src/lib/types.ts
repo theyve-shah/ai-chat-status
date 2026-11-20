@@ -1,6 +1,6 @@
 export type Tool = "claude" | "codex" | "cursor";
 export type Kind = "chat" | "code";
-export type Status = "needs_approval" | "working" | "done";
+export type Status = "needs_approval" | "working" | "done" | "dormant";
 
 export type TrackedChat = {
   id: string;
@@ -55,9 +55,14 @@ export const STATUSES: {
     label: "Done",
     hint: "Safe to close",
   },
+  {
+    id: "dormant",
+    label: "Dormant",
+    hint: "Stale / parked for later",
+  },
 ];
 
-export const STORAGE_KEY = "desk.chats.v1";
+export const STORAGE_KEY = "desk.chats.v2";
 
 export function emptyDraft(overrides: Partial<ChatDraft> = {}): ChatDraft {
   return {
@@ -134,6 +139,30 @@ export const SAMPLE_CHATS: TrackedChat[] = [
     link: "cursor://",
     createdAt: "2026-11-19T14:00:00.000Z",
     updatedAt: "2026-11-20T03:20:00.000Z",
+    archived: false,
+  },
+  {
+    id: "sample-5",
+    title: "Pricing page copy experiments",
+    tool: "claude",
+    kind: "chat",
+    status: "dormant",
+    note: "Parked after last sprint — revisit next quarter",
+    link: "https://claude.ai",
+    createdAt: "2026-10-28T09:00:00.000Z",
+    updatedAt: "2026-11-02T12:00:00.000Z",
+    archived: false,
+  },
+  {
+    id: "sample-6",
+    title: "Legacy webhook cleanup",
+    tool: "codex",
+    kind: "code",
+    status: "dormant",
+    note: "No activity in weeks — leave until on-call asks",
+    link: "https://chatgpt.com",
+    createdAt: "2026-10-12T16:00:00.000Z",
+    updatedAt: "2026-10-25T18:30:00.000Z",
     archived: false,
   },
 ];

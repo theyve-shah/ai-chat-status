@@ -1,10 +1,10 @@
 "use client";
 
-import { Check, Circle } from "lucide-react";
+import { Check, Circle, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { STATUSES, type Status } from "@/lib/types";
 
-const ORDER: Status[] = ["needs_approval", "working", "done"];
+const ORDER: Status[] = ["needs_approval", "working", "done", "dormant"];
 
 const STYLE: Record<
   Status,
@@ -25,6 +25,11 @@ const STYLE: Record<
     icon: "text-[#0f7a4d]",
     label: "Done",
   },
+  dormant: {
+    wrap: "bg-[#f3f4f6] text-[#6b7280]",
+    icon: "text-[#9ca3af]",
+    label: "Dormant",
+  },
 };
 
 export function StatusMark({
@@ -39,15 +44,15 @@ export function StatusMark({
   const style = STYLE[status];
   const meta = STATUSES.find((s) => s.id === status);
   const box = size === "sm" ? "size-5" : "size-7";
+  const isWorking = status === "working";
+  const dot = size === "sm" ? "size-1.5" : "size-2";
+  const glyph = size === "sm" ? "size-2.5" : "size-3";
 
   function cycle() {
     if (!onChange) return;
     const idx = ORDER.indexOf(status);
     onChange(ORDER[(idx + 1) % ORDER.length]);
   }
-
-  const isWorking = status === "working";
-  const dot = size === "sm" ? "size-1.5" : "size-2";
 
   return (
     <button
@@ -69,17 +74,14 @@ export function StatusMark({
       {isWorking ? (
         <span className={cn("relative inline-flex", dot)}>
           <span className="absolute inset-0 animate-ping rounded-full bg-[#2f5bdb]/50" />
-          <span
-            className={cn(
-              "relative rounded-full bg-[#2f5bdb]",
-              dot,
-            )}
-          />
+          <span className={cn("relative rounded-full bg-[#2f5bdb]", dot)} />
         </span>
       ) : status === "needs_approval" ? (
-        <Circle className={cn(size === "sm" ? "size-2.5" : "size-3", style.icon)} />
+        <Circle className={cn(glyph, style.icon)} />
+      ) : status === "done" ? (
+        <Check className={cn(glyph, style.icon)} />
       ) : (
-        <Check className={cn(size === "sm" ? "size-2.5" : "size-3", style.icon)} />
+        <Moon className={cn(glyph, style.icon)} />
       )}
     </button>
   );
