@@ -1,22 +1,21 @@
 #!/usr/bin/env node
-/**
- * Collect local Claude Code + Codex CLI sessions into a Desk import file.
- *
- * Consumer ChatGPT / Claude.ai have no list-chats API. What actually works:
- *   - Claude Code → ~/.claude/projects/**/*.jsonl
- *   - Codex CLI   → ~/.codex/sessions/**/rollout-*.jsonl
- *
- * Usage:
- *   node scripts/desk-push.mjs
- *   node scripts/desk-push.mjs --out ~/Desktop/desk-import.json
- *   node scripts/desk-push.mjs --post                 # POST to local Desk
- *   node scripts/desk-push.mjs --post --url https://…
- *   node scripts/desk-push.mjs --dry-run
- *
- * Then in Desk → Connect → drop the JSON / .jsonl, or Pull last push after --post.
- *
- * Env: CLAUDE_CONFIG_DIR, CODEX_HOME, DESK_URL, DESK_IMPORT_TOKEN
- */
+// Collect local Claude Code + Codex CLI sessions into a Desk import file.
+//
+// Consumer ChatGPT / Claude.ai have no list-chats API. What actually works:
+//   - Claude Code → ~/.claude/projects/<project>/<session>.jsonl
+//   - Codex CLI   → ~/.codex/sessions/<Y>/<M>/<D>/rollout-*.jsonl
+//
+// Usage:
+//   node scripts/desk-push.mjs
+//   node scripts/desk-push.mjs --out ~/Desktop/desk-import.json
+//   node scripts/desk-push.mjs --post                 # POST to local Desk
+//   node scripts/desk-push.mjs --post --url https://…
+//   node scripts/desk-push.mjs --dry-run
+//
+// Then in Desk → Connect → drop the JSON / .jsonl, or Pull last push after --post.
+//
+// Env: CLAUDE_CONFIG_DIR, CODEX_HOME, DESK_URL, DESK_IMPORT_TOKEN
+
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
