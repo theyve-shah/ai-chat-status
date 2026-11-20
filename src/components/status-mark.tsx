@@ -46,6 +46,9 @@ export function StatusMark({
     onChange(ORDER[(idx + 1) % ORDER.length]);
   }
 
+  const isWorking = status === "working";
+  const dot = size === "sm" ? "size-1.5" : "size-2";
+
   return (
     <button
       type="button"
@@ -59,14 +62,19 @@ export function StatusMark({
       className={cn(
         "inline-flex items-center justify-center rounded-full transition",
         box,
-        style.wrap,
+        isWorking ? "bg-transparent" : style.wrap,
         onChange ? "hover:scale-105 active:scale-95" : "cursor-default",
       )}
     >
-      {status === "working" ? (
-        <span className="relative inline-flex size-2">
-          <span className="absolute inset-0 animate-ping rounded-full bg-[#2f5bdb]/55" />
-          <span className="relative size-2 rounded-full bg-[#2f5bdb]" />
+      {isWorking ? (
+        <span className={cn("relative inline-flex", dot)}>
+          <span className="absolute inset-0 animate-ping rounded-full bg-[#2f5bdb]/50" />
+          <span
+            className={cn(
+              "relative rounded-full bg-[#2f5bdb]",
+              dot,
+            )}
+          />
         </span>
       ) : status === "needs_approval" ? (
         <Circle className={cn(size === "sm" ? "size-2.5" : "size-3", style.icon)} />

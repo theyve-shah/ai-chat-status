@@ -280,7 +280,7 @@ export function DeskApp() {
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       placeholder="Search"
-                      className="h-9 w-full rounded-full border-0 bg-[#f5f5f5] pl-9 shadow-none ring-0 focus-visible:ring-1 focus-visible:ring-[#d1d5db] sm:w-52"
+                      className="h-9 w-full !rounded-full border-0 bg-[#f5f5f5] pl-9 shadow-none ring-0 focus-visible:ring-1 focus-visible:ring-[#d1d5db] sm:w-52"
                     />
                   </div>
                   <Button
