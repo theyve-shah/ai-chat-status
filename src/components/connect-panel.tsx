@@ -17,17 +17,27 @@ import {
   BookOpen,
   Check,
   Globe,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+type SyncProps = {
+  configured: boolean | null;
+  syncing: boolean;
+  lastSyncedAt: string | null;
+  lastCount: number | null;
+  error: string | null;
+  onSync: () => void;
+};
 
 type Props = {
   connections: ConnectionsState;
   onChange: (tool: Tool, patch: Partial<ToolConnection>) => void;
+  sync: SyncProps;
 };
 
-export function ConnectPanel({ connections, onChange }: Props) {
-  const connectedCount = TOOLS.filter((t) => connections[t.id].connected).length;
-
+export function ConnectPanel({ connections, onChange, sync }: Props) {
   return (
     <div className="mx-auto max-w-2xl animate-in fade-in-0 duration-300">
       <header className="mb-6">
@@ -35,18 +45,16 @@ export function ConnectPanel({ connections, onChange }: Props) {
           Connect
         </h1>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#6b7280]">
-          Desk does not sync chats. Connecting wires{" "}
-          <span className="text-[#374151]">Open</span> to each product’s real
-          desktop deep links or website — steps below match official docs.
-        </p>
-        <p className="mt-2 text-xs text-[#9ca3af]">
-          {connectedCount}/3 ready
+          Cursor cloud agents sync automatically via the Cloud Agents API.
+          Claude and ChatGPT have no consumer list-chats API — Open still uses
+          deep links for those.
         </p>
       </header>
 
       <div className="space-y-4">
-        {TOOLS.map((tool) => (
-          <ToolConnectCard
+        <CursorSyncCard sync={sync} connection={connections.cursor} onChange={(p) => onChange("cursor", p)} />
+        {TOOLS.filter((t) => t.id !== "cursor").map((tool) => (
+          <ManualToolCard
             key={tool.id}
             tool={tool.id}
             connection={connections[tool.id]}
@@ -58,7 +66,151 @@ export function ConnectPanel({ connections, onChange }: Props) {
   );
 }
 
-function ToolConnectCard({
+function CursorSyncCard({
+  sync,
+  connection,
+  onChange,
+}: {
+  sync: SyncProps;
+  connection: ToolConnection;
+  onChange: (patch: Partial<ToolConnection>) => void;
+}) {
+  const guide = TOOL_GUIDES.cursor;
+  const ready = sync.configured === true;
+
+  return (
+    <section className="rounded-2xl bg-white px-4 py-4 ring-1 ring-[#e5e7eb]">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex min-w-0 items-start gap-2.5">
+          <ToolMark tool="cursor" size="md" />
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-sm font-medium text-[#111]">Cursor</p>
+              {ready ? (
+                <span className="inline-flex items-center gap-1 text-[11px] text-[#0f7a4d]">
+                  <Check className="size-3" />
+                  API connected
+                </span>
+              ) : sync.configured === false ? (
+                <span className="text-[11px] text-[#b45309]">Needs API key</span>
+              ) : (
+                <span className="text-[11px] text-[#9ca3af]">Checking…</span>
+              )}
+            </div>
+            <p className="mt-0.5 text-xs leading-relaxed text-[#9ca3af]">
+              Lists your cloud agents from{" "}
+              <code className="text-[11px]">api.cursor.com/v1/agents</code> and
+              refreshes the board every 5 minutes when configured.
+            </p>
+          </div>
+        </div>
+        <a
+          href="https://cursor.com/docs/cloud-agent/api/endpoints"
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex h-8 items-center gap-1 rounded-full px-2.5 text-xs text-[#6b7280] transition hover:bg-[#f9fafb] hover:text-[#111]"
+        >
+          <BookOpen className="size-3.5" />
+          API docs
+          <ArrowUpRight className="size-3.5" />
+        </a>
+      </div>
+
+      <ol className="mt-4 space-y-2 border-t border-[#f0f0f0] pt-4">
+        <li className="flex gap-2.5 text-xs leading-relaxed text-[#4b5563]">
+          <span className="mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-[#111] text-[10px] font-medium text-white">
+            1
+          </span>
+          <span>
+            Create a user API key at{" "}
+            <a
+              href="https://cursor.com/dashboard?tab=integrations"
+              target="_blank"
+              rel="noreferrer"
+              className="underline decoration-[#d1d5db] underline-offset-2 hover:text-[#111]"
+            >
+              cursor.com/dashboard → Integrations / API Keys
+            </a>
+            .
+          </span>
+        </li>
+        <li className="flex gap-2.5 text-xs leading-relaxed text-[#4b5563]">
+          <span className="mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-[#111] text-[10px] font-medium text-white">
+            2
+          </span>
+          <span>
+            Set <code className="text-[11px]">DESK_CURSOR_API_KEY</code> in your
+            host (Vercel / Cursor Secrets) or local <code className="text-[11px]">.env.local</code>.
+          </span>
+        </li>
+        <li className="flex gap-2.5 text-xs leading-relaxed text-[#4b5563]">
+          <span className="mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-[#111] text-[10px] font-medium text-white">
+            3
+          </span>
+          <span>
+            Tap <strong className="font-medium text-[#111]">Sync now</strong> —
+            agents you start in Cursor appear on the board with live status.
+          </span>
+        </li>
+      </ol>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <Button
+          type="button"
+          onClick={sync.onSync}
+          disabled={sync.syncing}
+          className="h-9 gap-1.5 rounded-full px-3.5"
+        >
+          {sync.syncing ? (
+            <Loader2 className="size-3.5 animate-spin" />
+          ) : (
+            <RefreshCw className="size-3.5" />
+          )}
+          Sync now
+        </Button>
+        {sync.lastSyncedAt ? (
+          <span className="text-[11px] text-[#9ca3af]">
+            {sync.lastCount ?? 0} agents ·{" "}
+            {new Date(sync.lastSyncedAt).toLocaleTimeString()}
+          </span>
+        ) : null}
+      </div>
+
+      {sync.error ? (
+        <p className="mt-3 text-xs leading-relaxed text-[#b45309]">{sync.error}</p>
+      ) : null}
+
+      <div className="mt-4 border-t border-[#f0f0f0] pt-3">
+        <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.12em] text-[#c0c4cc]">
+          Open preference (optional)
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <PreferChip
+            active={connection.connected && connection.preferred === "app"}
+            onClick={() => onChange({ preferred: "app", connected: true })}
+            label="Desktop app"
+          />
+          <PreferChip
+            active={connection.connected && connection.preferred === "web"}
+            onClick={() => onChange({ preferred: "web", connected: true })}
+            label="Web"
+          />
+          <a
+            href={guide.webUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-7 items-center gap-1 rounded-full bg-white px-2.5 text-[11px] text-[#6b7280] ring-1 ring-[#e5e7eb] transition hover:text-[#111]"
+          >
+            <Globe className="size-3" />
+            Agents
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ManualToolCard({
   tool,
   connection,
   onChange,
@@ -101,68 +253,23 @@ function ToolConnectCard({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-sm font-medium text-[#111]">{guide.label}</p>
-              {connection.connected ? (
-                <span className="inline-flex items-center gap-1 text-[11px] text-[#0f7a4d]">
-                  <Check className="size-3" />
-                  {connection.preferred === "web" ? "Web" : "Desktop"}
-                </span>
-              ) : null}
+              <span className="text-[11px] text-[#9ca3af]">Manual only</span>
             </div>
             <p className="mt-0.5 text-xs leading-relaxed text-[#9ca3af]">
-              {guide.blurb}
+              No public consumer API to list chats. Add rows by hand; Open still
+              uses deep links / web.
             </p>
           </div>
         </div>
-
-        <div className="flex flex-wrap gap-1.5">
-          <a
-            href={guide.installUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex h-8 items-center gap-1 rounded-full bg-white px-2.5 text-xs text-[#374151] ring-1 ring-[#e5e7eb] transition hover:bg-[#f9fafb]"
-          >
-            {guide.installLabel}
-            <ArrowUpRight className="size-3.5" />
-          </a>
-          <a
-            href={guide.docsUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex h-8 items-center gap-1 rounded-full px-2.5 text-xs text-[#6b7280] transition hover:bg-white hover:text-[#111]"
-          >
-            <BookOpen className="size-3.5" />
-            Docs
-          </a>
-        </div>
-      </div>
-
-      <ol className="mt-4 space-y-2 border-t border-[#f0f0f0] pt-4">
-        {guide.steps.map((step, index) => (
-          <li
-            key={step}
-            className="flex gap-2.5 text-xs leading-relaxed text-[#4b5563]"
-          >
-            <span className="mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-[#111] text-[10px] font-medium text-white">
-              {index + 1}
-            </span>
-            <span>{step}</span>
-          </li>
-        ))}
-      </ol>
-
-      <div className="mt-3 rounded-xl bg-[#f8f8f8] px-3 py-2.5">
-        <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#c0c4cc]">
-          Paste into Desk when adding a chat
-        </p>
-        <ul className="mt-1.5 space-y-1">
-          {guide.linkExamples.map((example) => (
-            <li key={example}>
-              <code className="break-all text-[11px] text-[#6b7280]">
-                {example}
-              </code>
-            </li>
-          ))}
-        </ul>
+        <a
+          href={guide.docsUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex h-8 items-center gap-1 rounded-full px-2.5 text-xs text-[#6b7280] transition hover:bg-white hover:text-[#111]"
+        >
+          <BookOpen className="size-3.5" />
+          Docs
+        </a>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
@@ -197,25 +304,10 @@ function ToolConnectCard({
           onClick={() => prefer("web")}
           label="Web"
         />
-        {connection.connected ? (
-          <button
-            type="button"
-            onClick={() => onChange({ connected: false })}
-            className="text-[11px] text-[#9ca3af] transition hover:text-[#111]"
-          >
-            Disconnect
-          </button>
-        ) : null}
         {tested ? (
-          <span className="text-[11px] text-[#0f7a4d]">
-            Marked connected after test
-          </span>
+          <span className="text-[11px] text-[#0f7a4d]">Marked connected</span>
         ) : null}
       </div>
-
-      <p className="mt-3 text-[11px] leading-relaxed text-[#9ca3af]">
-        {guide.chatLinkHint}
-      </p>
     </section>
   );
 }

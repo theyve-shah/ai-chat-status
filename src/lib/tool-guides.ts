@@ -87,7 +87,7 @@ export const TOOL_GUIDES: Record<Tool, ToolGuide> = {
     id: "cursor",
     label: "Cursor",
     blurb:
-      "Cloud agents live at cursor.com/agents/<id>. Desktop also supports cursor:// prompt / background-agent deep links.",
+      "Desk syncs cloud agents via the Cloud Agents API. Open still uses cursor.com/agents/<id> or desktop deep links.",
     installLabel: "Download Cursor",
     installUrl: "https://cursor.com/download",
     docsLabel: "Cursor deeplink docs",

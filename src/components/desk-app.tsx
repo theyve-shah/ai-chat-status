@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useChats } from "@/hooks/use-chats";
 import { useConnections } from "@/hooks/use-connections";
+import { useCursorSync } from "@/hooks/use-cursor-sync";
 import {
   DEFAULT_CONNECTIONS,
   openHref,
@@ -40,8 +41,10 @@ import {
   Link2,
   LogOut,
   MessageSquare,
+  Loader2,
   Pencil,
   Plus,
+  RefreshCw,
   Search,
   Trash2,
 } from "lucide-react";
@@ -62,8 +65,10 @@ export function DeskApp() {
     archiveChat,
     restoreChat,
     removeChat,
+    mergeFromSync,
   } = useChats();
   const { connections, ready: connectionsReady, updateTool } = useConnections();
+  const cursorSync = useCursorSync(mergeFromSync);
 
   const [view, setView] = useState<View>("board");
   const [toolFilter, setToolFilter] = useState<ToolFilter>("all");
@@ -268,7 +273,20 @@ export function DeskApp() {
 
         <main className="flex-1 px-4 pb-16 pt-4 md:px-8 md:pt-8 lg:px-10">
           {view === "connect" && connectionsReady ? (
-            <ConnectPanel connections={connState} onChange={updateTool} />
+            <ConnectPanel
+              connections={connState}
+              onChange={updateTool}
+              sync={{
+                configured: cursorSync.configured,
+                syncing: cursorSync.syncing,
+                lastSyncedAt: cursorSync.lastSyncedAt,
+                lastCount: cursorSync.lastCount,
+                error: cursorSync.error,
+                onSync: () => {
+                  void cursorSync.sync();
+                },
+              }}
+            />
           ) : (
             <>
               <header className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -290,10 +308,23 @@ export function DeskApp() {
                     <span className="text-[11px] tabular-nums text-[#9ca3af]">
                       {counts.dormant}
                     </span>
+                    {cursorSync.lastSyncedAt ? (
+                      <span className="ml-1 text-[11px] text-[#c0c4cc]">
+                        · Cursor synced{" "}
+                        {new Date(
+                          cursorSync.lastSyncedAt,
+                        ).toLocaleTimeString()}
+                      </span>
+                    ) : null}
                   </div>
                   <h1 className="text-3xl font-medium tracking-tight md:text-[2rem]">
                     {showArchived ? "Archive" : "Active chats"}
                   </h1>
+                  {cursorSync.error ? (
+                    <p className="mt-1 max-w-md text-xs text-[#b45309]">
+                      {cursorSync.error}
+                    </p>
+                  ) : null}
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                   <div className="relative">
@@ -305,6 +336,23 @@ export function DeskApp() {
                       className="h-9 w-full !rounded-full border-0 bg-[#f5f5f5] pl-9 shadow-none ring-0 focus-visible:ring-1 focus-visible:ring-[#d1d5db] sm:w-52"
                     />
                   </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      void cursorSync.sync();
+                    }}
+                    disabled={cursorSync.syncing}
+                    className="h-9 gap-1.5 rounded-full border-0 bg-[#f5f5f5] px-3.5 shadow-none"
+                    title="Sync Cursor cloud agents"
+                  >
+                    {cursorSync.syncing ? (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    ) : (
+                      <RefreshCw className="size-3.5" />
+                    )}
+                    Sync
+                  </Button>
                   <Button
                     onClick={() => openCreate("working")}
                     className="h-9 gap-1.5 rounded-full px-4"
@@ -343,6 +391,11 @@ export function DeskApp() {
                   {counts.all === 0 ? (
                     <EmptyBoard
                       onConnect={() => setView("connect")}
+                      onSync={() => {
+                        void cursorSync.sync();
+                      }}
+                      syncing={cursorSync.syncing}
+                      configured={cursorSync.configured}
                       onAdd={() => openCreate("working")}
                     />
                   ) : (
@@ -388,19 +441,38 @@ export function DeskApp() {
 
 function EmptyBoard({
   onConnect,
+  onSync,
+  syncing,
+  configured,
   onAdd,
 }: {
   onConnect: () => void;
+  onSync: () => void;
+  syncing: boolean;
+  configured: boolean | null;
   onAdd: () => void;
 }) {
   return (
     <div className="rounded-2xl px-1 py-16 text-center">
       <p className="text-sm font-medium text-[#111]">No chats yet</p>
       <p className="mx-auto mt-1.5 max-w-sm text-sm text-[#9ca3af]">
-        Connect Claude, ChatGPT/Codex, and Cursor, then add the chats you want
-        to check in on.
+        Sync Cursor cloud agents from the API, or add Claude / ChatGPT chats
+        manually.
       </p>
       <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+        <Button
+          type="button"
+          onClick={configured === false ? onConnect : onSync}
+          disabled={syncing}
+          className="h-9 gap-1.5 rounded-full px-4"
+        >
+          {syncing ? (
+            <Loader2 className="size-3.5 animate-spin" />
+          ) : (
+            <RefreshCw className="size-3.5" />
+          )}
+          {configured === false ? "Set API key" : "Sync Cursor"}
+        </Button>
         <Button
           type="button"
           variant="outline"
@@ -408,15 +480,16 @@ function EmptyBoard({
           className="h-9 rounded-full px-4"
         >
           <Link2 className="size-3.5" />
-          Connect tools
+          Connect
         </Button>
         <Button
           type="button"
+          variant="outline"
           onClick={onAdd}
           className="h-9 gap-1.5 rounded-full px-4"
         >
           <Plus className="size-4" />
-          Add chat
+          Add manually
         </Button>
       </div>
     </div>

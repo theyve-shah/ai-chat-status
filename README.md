@@ -2,56 +2,60 @@
 
 Plain check-in board for active chats across **Claude**, **Codex**, and **Cursor**.
 
-No APIs, no extensions — you add chats yourself and update status when you check in. Built for quick looks every few hours, not constant babysitting.
+Cursor cloud agents sync from the [Cloud Agents API](https://cursor.com/docs/cloud-agent/api/endpoints). Claude and ChatGPT have no consumer list-chats API — add those manually. Built for quick looks every few hours, not constant babysitting.
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 
 ## Features
 
+- **Cursor auto-sync** via `DESK_CURSOR_API_KEY` (Sync now + 5‑minute refresh)
 - Statuses as icons (click to cycle): needs approval · working · done · dormant
-- **Connect** screen with official deep-link steps for Claude, ChatGPT/Codex, and Cursor
+- **Connect** screen: API sync for Cursor; deep-link Open prefs for Claude / ChatGPT
 - Desktop deep links (`claude://`, `codex://`, `cursor://…`) or web URLs
 - Per-chat Open button for the preferred desktop app or browser link
-- Optional chat / agent deep link on each row
 - Optional password gate for hosted deploys
 
 ## Quick start
 
 ```bash
 npm install
+cp .env.example .env.local   # optional: add DESK_CURSOR_API_KEY
 npm run dev
 ```
 
 Open [http://127.0.0.1:3847](http://127.0.0.1:3847).
 
-Chat + Connect data stays in your browser (`localStorage`). No database.
+Chat + Connect prefs stay in your browser (`localStorage`). No database.
+
+## Cursor sync
+
+1. Create a user API key at [cursor.com/dashboard](https://cursor.com/dashboard?tab=integrations) → Integrations / API Keys.
+2. Set `DESK_CURSOR_API_KEY` in `.env.local` (local) or your host’s secrets (deploy).
+3. Open Desk → **Sync** (or Connect → **Sync now**). Agents you start in Cursor appear on the board with live status.
+
+Manual Claude / ChatGPT rows are preserved; synced Cursor rows upsert by agent id.
 
 ## How to connect tools
 
-Desk does not sync chats via APIs. Connect only wires **Open** to each product’s documented deep links / website.
+| Tool | Sync | Open |
+| --- | --- | --- |
+| Cursor | Cloud Agents API (`DESK_CURSOR_API_KEY`) | Web agents URL or desktop deep link |
+| Claude | Manual add only (no consumer list API) | `claude://` / claude.ai |
+| ChatGPT / Codex | Manual add only (no consumer list API) | `codex://` / chatgpt.com |
 
-1. Open **Connect** in the left nav.
-2. For each tool: install from the official download link → follow the numbered steps → **Test desktop** (or open web).
-3. Prefer **Desktop app** or **Web**.
-4. When adding a chat, paste the product’s chat / agent URL (or deep link). Examples:
-   - Claude: `https://claude.ai/chat/<id>` or `claude://claude.ai/chat/<id>`
-   - ChatGPT/Codex: `codex://threads/<id>` (⌘⌥L in the desktop app) or `https://chatgpt.com/c/<id>`
-   - Cursor: `https://cursor.com/agents/bc-…`
+Docs: [Claude deep links](https://support.claude.com/en/articles/14729294-open-claude-desktop-with-a-link) · [ChatGPT deep links](https://learn.chatgpt.com/docs/reference/commands#deep-links) · [Cursor Cloud Agents API](https://cursor.com/docs/cloud-agent/api/endpoints) · [Cursor deeplinks](https://cursor.com/docs/reference/deeplinks)
 
-Docs: [Claude deep links](https://support.claude.com/en/articles/14729294-open-claude-desktop-with-a-link) · [ChatGPT deep links](https://learn.chatgpt.com/docs/reference/commands#deep-links) · [Cursor deeplinks](https://cursor.com/docs/reference/deeplinks)
+## Hosted deploy
 
-## Hosted deploy (Vercel)
-
-For a public site, set these environment variables so strangers cannot open your Desk:
+Set these environment variables (see `.env.example`). Never commit a real `.env`.
 
 | Variable | Purpose |
 | --- | --- |
 | `DESK_PASSWORD` | Shared unlock password |
 | `DESK_SESSION_SECRET` | Signs the session cookie (long random string) |
+| `DESK_CURSOR_API_KEY` | Cursor user API key for agent sync |
 
-See `.env.example`. Never commit a real `.env`.
-
-Locally, if those are unset, the app stays open for development.
+Locally, if the password vars are unset, the app stays open for development.
 
 ## Contributing
 

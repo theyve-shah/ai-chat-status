@@ -2,6 +2,8 @@ export type Tool = "claude" | "codex" | "cursor";
 export type Kind = "chat" | "code";
 export type Status = "needs_approval" | "working" | "done" | "dormant";
 
+export type ChatSource = "manual" | "cursor";
+
 export type TrackedChat = {
   id: string;
   title: string;
@@ -13,6 +15,10 @@ export type TrackedChat = {
   createdAt: string;
   updatedAt: string;
   archived: boolean;
+  /** Where this row came from. Manual by default. */
+  source?: ChatSource;
+  /** Stable id from an external system (e.g. Cursor agent id). */
+  externalId?: string;
 };
 
 export type ChatDraft = {
@@ -94,7 +100,7 @@ export const STATUSES: {
   },
 ];
 
-export const STORAGE_KEY = "desk.chats.v3";
+export const STORAGE_KEY = "desk.chats.v4";
 
 export function emptyDraft(overrides: Partial<ChatDraft> = {}): ChatDraft {
   return {
@@ -121,5 +127,6 @@ export function createChat(draft: ChatDraft): TrackedChat {
     createdAt: now,
     updatedAt: now,
     archived: false,
+    source: "manual",
   };
 }

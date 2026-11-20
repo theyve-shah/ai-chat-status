@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { loadChats, saveChats } from "@/lib/storage";
+import { loadChats, mergeSyncedChats, saveChats } from "@/lib/storage";
 import {
   createChat,
   type ChatDraft,
@@ -59,6 +59,11 @@ export function useChats() {
     setChats([]);
   }
 
+  /** Merge Cursor Cloud Agents API rows; preserve manual chats. */
+  function mergeFromSync(synced: TrackedChat[]) {
+    setChats((prev) => mergeSyncedChats(prev, synced));
+  }
+
   return {
     chats,
     ready,
@@ -69,5 +74,6 @@ export function useChats() {
     restoreChat,
     removeChat,
     clearAll,
+    mergeFromSync,
   };
 }
