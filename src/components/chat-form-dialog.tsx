@@ -72,13 +72,13 @@ export function ChatFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-border/80 bg-[#fbfbfa] shadow-none sm:max-w-md">
+      <DialogContent className="border-0 bg-white shadow-xl ring-1 ring-[#ececec] sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-[family-name:var(--font-display)] text-xl tracking-tight">
+          <DialogTitle className="text-xl font-medium tracking-tight">
             {initial ? "Edit chat" : "Add chat"}
           </DialogTitle>
           <DialogDescription>
-            Manual tracker only — nothing syncs from Claude, Codex, or Cursor.
+            Paste a chat URL or app deep link so Open can jump straight there.
           </DialogDescription>
         </DialogHeader>
         <form className="grid gap-4" onSubmit={handleSubmit}>
@@ -157,12 +157,12 @@ export function ChatFormDialog({
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="link">Link (optional)</Label>
+            <Label htmlFor="link">Chat link / deep link</Label>
             <Input
               id="link"
               value={draft.link}
               onChange={(e) => setDraft({ ...draft, link: e.target.value })}
-              placeholder="Paste a chat URL if you have one"
+              placeholder="https://… or cursor:// / claude:// / chatgpt://"
             />
           </div>
           <DialogFooter>
