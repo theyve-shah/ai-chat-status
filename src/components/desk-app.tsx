@@ -20,11 +20,14 @@ import { cn } from "@/lib/utils";
 import {
   KINDS,
   STATUSES,
+  TOOL_LANES,
   TOOLS,
+  matchesToolLane,
   type ChatDraft,
   type Kind,
   type Status,
   type Tool,
+  type ToolLaneId,
   type TrackedChat,
 } from "@/lib/types";
 import {
@@ -45,8 +48,10 @@ import {
 } from "lucide-react";
 
 type View = "board" | "connect";
-type ToolFilter = "all" | Tool;
+type ToolFilter = "all" | ToolLaneId;
 type KindFilter = "all" | Kind;
+
+const ACTIVE_STATUSES: Status[] = ["needs_approval", "working"];
 
 export function DeskApp() {
   const {
@@ -74,7 +79,9 @@ export function DeskApp() {
   const visible = useMemo(() => {
     return chats
       .filter((chat) => (showArchived ? chat.archived : !chat.archived))
-      .filter((chat) => (toolFilter === "all" ? true : chat.tool === toolFilter))
+      .filter((chat) =>
+        toolFilter === "all" ? true : matchesToolLane(chat, toolFilter),
+      )
       .filter((chat) => (kindFilter === "all" ? true : chat.kind === kindFilter))
       .filter((chat) => {
         if (!query.trim()) return true;
@@ -89,6 +96,20 @@ export function DeskApp() {
 
   const counts = useMemo(() => {
     const active = chats.filter((c) => !c.archived);
+    const live = active.filter((c) => ACTIVE_STATUSES.includes(c.status));
+    const byLane = Object.fromEntries(
+      TOOL_LANES.map((lane) => [
+        lane.id,
+        active.filter((c) => matchesToolLane(c, lane.id)).length,
+      ]),
+    ) as Record<ToolLaneId, number>;
+    const liveByLane = Object.fromEntries(
+      TOOL_LANES.map((lane) => [
+        lane.id,
+        live.filter((c) => matchesToolLane(c, lane.id)).length,
+      ]),
+    ) as Record<ToolLaneId, number>;
+
     return {
       all: active.length,
       needs_approval: active.filter((c) => c.status === "needs_approval")
@@ -100,6 +121,9 @@ export function DeskApp() {
       connected: connections
         ? TOOLS.filter((t) => connections[t.id].connected).length
         : 0,
+      byLane,
+      liveByLane,
+      liveTotal: live.length,
     };
   }, [chats, connections]);
 
@@ -123,25 +147,31 @@ export function DeskApp() {
     addChat(draft);
   }
 
+  function selectLane(lane: ToolFilter) {
+    setView("board");
+    setShowArchived(false);
+    setToolFilter(lane);
+  }
+
   const connState = connections ?? DEFAULT_CONNECTIONS;
 
   return (
     <div className="min-h-screen bg-white text-[#111]">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col md:flex-row">
-        <aside className="px-2 py-3 md:sticky md:top-0 md:flex md:h-screen md:w-14 md:flex-col md:items-center md:px-1.5 md:py-4 lg:w-44 lg:items-stretch lg:px-2.5">
-          <div className="mb-3 flex items-center gap-2 px-1.5 lg:mb-5">
-            <span className="inline-flex size-7 items-center justify-center rounded-lg bg-[#111] text-[11px] font-semibold text-white">
+        <aside className="px-1.5 py-2 md:sticky md:top-0 md:flex md:h-screen md:w-12 md:flex-col md:items-center md:px-1 md:py-3 lg:w-40 lg:items-stretch lg:px-2">
+          <div className="mb-2 flex items-center gap-1.5 px-1 lg:mb-3">
+            <span className="inline-flex size-6 items-center justify-center rounded-md bg-[#111] text-[10px] font-semibold text-white">
               D
             </span>
             <div className="hidden lg:block">
-              <p className="text-sm font-medium leading-none tracking-tight">
+              <p className="text-[13px] font-medium leading-none tracking-tight">
                 Desk
               </p>
-              <p className="mt-0.5 text-[10px] text-[#9ca3af]">check-in</p>
+              <p className="mt-0.5 text-[9px] text-[#9ca3af]">check-in</p>
             </div>
           </div>
 
-          <nav className="flex gap-0.5 md:flex-col">
+          <nav className="flex gap-0 md:flex-col">
             <NavItem
               active={view === "board" && !showArchived}
               onClick={() => {
@@ -160,40 +190,37 @@ export function DeskApp() {
             />
           </nav>
 
-          <div className="mt-4 hidden flex-col gap-0.5 lg:flex">
-            <p className="px-1.5 pb-1 text-[9px] font-medium uppercase tracking-[0.14em] text-[#c0c4cc]">
+          <div className="mt-3 hidden flex-col gap-0 lg:flex">
+            <p className="px-1 pb-0.5 text-[8px] font-medium uppercase tracking-[0.14em] text-[#c0c4cc]">
               Tools
             </p>
             <NavItem
               active={view === "board" && toolFilter === "all"}
-              onClick={() => {
-                setView("board");
-                setToolFilter("all");
-              }}
+              onClick={() => selectLane("all")}
               icon={<LayoutGrid className="size-3.5" />}
               label="All"
               badge={counts.all}
             />
-            {TOOLS.map((tool) => (
+            {TOOL_LANES.map((lane) => (
               <NavItem
-                key={tool.id}
-                active={view === "board" && toolFilter === tool.id}
-                onClick={() => {
-                  setView("board");
-                  setToolFilter(tool.id);
-                }}
-                icon={<ToolMark tool={tool.id} />}
-                label={tool.label}
-                badge={
-                  chats.filter((c) => !c.archived && c.tool === tool.id).length
+                key={lane.id}
+                active={view === "board" && toolFilter === lane.id}
+                onClick={() => selectLane(lane.id)}
+                icon={
+                  <ToolMark
+                    tool={lane.tool}
+                    kind={lane.kind ?? "chat"}
+                  />
                 }
-                connected={connState[tool.id].connected}
+                label={lane.label}
+                badge={counts.byLane[lane.id]}
+                connected={connState[lane.tool].connected}
               />
             ))}
           </div>
 
-          <div className="mt-4 hidden flex-col gap-0.5 lg:flex">
-            <p className="px-1.5 pb-1 text-[9px] font-medium uppercase tracking-[0.14em] text-[#c0c4cc]">
+          <div className="mt-3 hidden flex-col gap-0 lg:flex">
+            <p className="px-1 pb-0.5 text-[8px] font-medium uppercase tracking-[0.14em] text-[#c0c4cc]">
               Type
             </p>
             <NavItem
@@ -216,7 +243,7 @@ export function DeskApp() {
             />
           </div>
 
-          <div className="mt-auto hidden space-y-0.5 pt-4 lg:block">
+          <div className="mt-auto hidden space-y-0 pt-3 lg:block">
             <NavItem
               active={showArchived}
               onClick={() => {
@@ -230,9 +257,9 @@ export function DeskApp() {
             <button
               type="button"
               onClick={resetSamples}
-              className="flex w-full items-center gap-2 rounded-lg px-1.5 py-1.5 text-left text-xs text-[#9ca3af] transition hover:text-[#111]"
+              className="flex w-full items-center gap-1.5 rounded-md px-1 py-1 text-left text-[11px] text-[#9ca3af] transition hover:text-[#111]"
             >
-              <RotateCcw className="size-3.5" />
+              <RotateCcw className="size-3" />
               Reset samples
             </button>
             <button
@@ -241,9 +268,9 @@ export function DeskApp() {
                 await fetch("/api/auth/logout", { method: "POST" });
                 window.location.href = "/login";
               }}
-              className="flex w-full items-center gap-2 rounded-lg px-1.5 py-1.5 text-left text-xs text-[#9ca3af] transition hover:text-[#111]"
+              className="flex w-full items-center gap-1.5 rounded-md px-1 py-1 text-left text-[11px] text-[#9ca3af] transition hover:text-[#111]"
             >
-              <LogOut className="size-3.5" />
+              <LogOut className="size-3" />
               Sign out
             </button>
           </div>
@@ -254,7 +281,7 @@ export function DeskApp() {
             <ConnectPanel connections={connState} onChange={updateTool} />
           ) : (
             <>
-              <header className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <header className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <div className="mb-2 flex items-center gap-1.5">
                     <StatusMark status="needs_approval" size="sm" />
@@ -315,34 +342,13 @@ export function DeskApp() {
                   onRemove={removeChat}
                 />
               ) : (
-                <div className="space-y-10">
-                  {counts.connected < 3 ? (
-                    <button
-                      type="button"
-                      onClick={() => setView("connect")}
-                      className="flex w-full items-center justify-between rounded-2xl bg-[#f8f8f8] px-4 py-3 text-left transition hover:bg-[#f3f4f6]"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="inline-flex size-9 items-center justify-center rounded-full bg-white ring-1 ring-[#e5e7eb]">
-                          <Link2 className="size-4 text-[#4b5563]" />
-                        </span>
-                        <div>
-                          <p className="text-sm font-medium">
-                            {counts.connected === 0
-                              ? "Connect Claude, Codex, and Cursor"
-                              : `${counts.connected}/3 tools connected`}
-                          </p>
-                          <p className="text-xs text-[#9ca3af]">
-                            Install apps → Connect → Test Open. Steps are on the
-                            Connect page.
-                          </p>
-                        </div>
-                      </div>
-                      <span className="text-xs text-[#6b7280]">
-                        {counts.connected === 0 ? "How to →" : "Finish →"}
-                      </span>
-                    </button>
-                  ) : null}
+                <div className="space-y-8">
+                  <ActiveDashboard
+                    liveTotal={counts.liveTotal}
+                    liveByLane={counts.liveByLane}
+                    selected={toolFilter}
+                    onSelect={selectLane}
+                  />
 
                   {STATUSES.map((status) => {
                     const group = visible.filter((c) => c.status === status.id);
@@ -381,6 +387,57 @@ export function DeskApp() {
   );
 }
 
+function ActiveDashboard({
+  liveTotal,
+  liveByLane,
+  selected,
+  onSelect,
+}: {
+  liveTotal: number;
+  liveByLane: Record<ToolLaneId, number>;
+  selected: ToolFilter;
+  onSelect: (lane: ToolFilter) => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <button
+        type="button"
+        onClick={() => onSelect("all")}
+        className={cn(
+          "inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs transition",
+          selected === "all"
+            ? "bg-[#111] text-white"
+            : "bg-[#f5f5f5] text-[#6b7280] hover:bg-[#efefef] hover:text-[#111]",
+        )}
+      >
+        <span className="font-medium tabular-nums">{liveTotal}</span>
+        <span className="opacity-70">live</span>
+      </button>
+      {TOOL_LANES.map((lane) => {
+        const n = liveByLane[lane.id];
+        const active = selected === lane.id;
+        return (
+          <button
+            key={lane.id}
+            type="button"
+            onClick={() => onSelect(lane.id)}
+            className={cn(
+              "inline-flex h-8 items-center gap-1.5 rounded-full px-2 text-xs transition",
+              active
+                ? "bg-[#f3f4f6] text-[#111] ring-1 ring-[#e5e7eb]"
+                : "text-[#9ca3af] hover:bg-[#f7f7f7] hover:text-[#111]",
+            )}
+            aria-label={`${lane.label}: ${n} active`}
+          >
+            <ToolMark tool={lane.tool} kind={lane.kind ?? "chat"} />
+            <span className="font-medium tabular-nums">{n}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function NavItem({
   active,
   onClick,
@@ -402,26 +459,21 @@ function NavItem({
       onClick={onClick}
       aria-label={label}
       className={cn(
-        "group flex items-center gap-2 rounded-lg px-1.5 py-1 text-sm transition",
+        "group relative flex items-center gap-1.5 rounded-md px-1 py-0.5 text-sm transition",
         active ? "text-[#111]" : "text-[#9ca3af] hover:text-[#111]",
       )}
     >
-      <span
-        className={cn(
-          "relative inline-flex size-7 items-center justify-center rounded-lg transition",
-          active ? "bg-[#f3f4f6]" : "group-hover:bg-[#f7f7f7]",
-        )}
-      >
+      <span className="relative inline-flex size-6 shrink-0 items-center justify-center">
         {icon}
         {connected ? (
-          <span className="absolute top-0.5 right-0.5 size-1.5 rounded-full bg-[#10b981]" />
+          <span className="absolute top-0 right-0 size-1 rounded-full bg-[#10b981]" />
         ) : null}
       </span>
-      <span className="hidden flex-1 text-left text-[13px] lg:inline">
+      <span className="hidden flex-1 truncate text-left text-xs lg:inline">
         {label}
       </span>
       {typeof badge === "number" ? (
-        <span className="hidden text-[11px] tabular-nums text-[#c0c4cc] lg:inline">
+        <span className="hidden text-[10px] tabular-nums text-[#c0c4cc] lg:inline">
           {badge}
         </span>
       ) : null}
@@ -456,9 +508,9 @@ function StatusSection({
 }) {
   return (
     <section className="animate-in fade-in-0 duration-300">
-      <div className="mb-3 flex items-center justify-between gap-3">
+      <div className="mb-2.5 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          {status ? <StatusMark status={status} /> : null}
+          {status ? <StatusMark status={status} size="sm" /> : null}
           <h2 className="text-sm font-medium text-[#374151]">{title}</h2>
           <span className="text-xs tabular-nums text-[#c0c4cc]">
             {chats.length}
@@ -477,9 +529,9 @@ function StatusSection({
       </div>
 
       {chats.length === 0 ? (
-        <p className="px-1 py-6 text-sm text-[#d1d5db]">{empty}</p>
+        <p className="px-1 py-5 text-sm text-[#d1d5db]">{empty}</p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="space-y-1.5">
           {chats.map((chat) => (
             <ChatRow
               key={chat.id}
@@ -532,37 +584,38 @@ function ChatRow({
   }
 
   return (
-    <li className="group rounded-2xl bg-[#fafafa] px-3 py-3 ring-1 ring-[#efefef] transition hover:bg-[#f7f7f7] hover:ring-[#e5e7eb] sm:px-4">
+    <li className="group rounded-2xl bg-[#fafafa] px-3 py-2.5 ring-1 ring-[#efefef] transition hover:bg-[#f7f7f7] hover:ring-[#e5e7eb] sm:px-4">
       <div className="flex items-start gap-3 sm:items-center">
-        <StatusMark
-          status={chat.status}
-          onChange={(next) => onStatus(chat.id, next)}
-        />
+        <ToolMark tool={chat.tool} kind={chat.kind} size="md" />
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="truncate text-sm font-medium tracking-tight text-[#111]">
               {chat.title}
             </p>
-            <ToolMark tool={chat.tool} kind={chat.kind} />
+            <StatusMark
+              status={chat.status}
+              size="sm"
+              onChange={(next) => onStatus(chat.id, next)}
+            />
             <span
               aria-label={KINDS.find((k) => k.id === chat.kind)?.label}
-              className="inline-flex size-6 items-center justify-center rounded-full bg-white text-[#9ca3af] ring-1 ring-[#ececec]"
+              className="inline-flex size-5 items-center justify-center text-[#9ca3af]"
             >
               {kindIcon}
             </span>
           </div>
           {chat.note ? (
-            <p className="mt-1 line-clamp-1 text-sm text-[#6b7280]">
+            <p className="mt-0.5 line-clamp-1 text-sm text-[#6b7280]">
               {chat.note}
             </p>
           ) : null}
-          <p className="mt-1 text-[11px] text-[#c0c4cc]">
+          <p className="mt-0.5 text-[11px] text-[#c0c4cc]">
             {formatRelative(chat.updatedAt)}
           </p>
         </div>
 
-        <div className="flex shrink-0 flex-wrap items-center justify-end gap-1">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-0.5">
           <IconAction
             label={
               connection.preferred === "app"
@@ -581,7 +634,9 @@ function ChatRow({
           {targets.chatHref ? (
             <a
               href={targets.chatHref}
-              target={/^https?:\/\//i.test(targets.chatHref) ? "_blank" : undefined}
+              target={
+                /^https?:\/\//i.test(targets.chatHref) ? "_blank" : undefined
+              }
               rel="noreferrer"
               className="inline-flex size-8 items-center justify-center rounded-full text-[#9ca3af] transition hover:bg-white hover:text-[#111]"
               aria-label="Open saved chat link"

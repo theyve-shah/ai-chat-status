@@ -35,6 +35,38 @@ export const KINDS: { id: Kind; label: string }[] = [
   { id: "code", label: "Code" },
 ];
 
+/** Sidebar + dashboard lanes (tool × kind product surfaces). */
+export type ToolLaneId =
+  | "claude"
+  | "claude_code"
+  | "chatgpt"
+  | "codex"
+  | "cursor";
+
+export const TOOL_LANES: {
+  id: ToolLaneId;
+  tool: Tool;
+  kind: Kind | null;
+  label: string;
+}[] = [
+  { id: "claude", tool: "claude", kind: "chat", label: "Claude" },
+  { id: "claude_code", tool: "claude", kind: "code", label: "Claude Code" },
+  { id: "chatgpt", tool: "codex", kind: "chat", label: "ChatGPT" },
+  { id: "codex", tool: "codex", kind: "code", label: "Codex" },
+  { id: "cursor", tool: "cursor", kind: null, label: "Cursor" },
+];
+
+export function matchesToolLane(
+  chat: Pick<TrackedChat, "tool" | "kind">,
+  laneId: ToolLaneId,
+): boolean {
+  const lane = TOOL_LANES.find((l) => l.id === laneId);
+  if (!lane) return false;
+  if (chat.tool !== lane.tool) return false;
+  if (lane.kind && chat.kind !== lane.kind) return false;
+  return true;
+}
+
 export const STATUSES: {
   id: Status;
   label: string;
