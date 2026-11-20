@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Circle, LoaderCircle } from "lucide-react";
+import { Check, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { STATUSES, type Status } from "@/lib/types";
 
@@ -30,12 +30,15 @@ const STYLE: Record<
 export function StatusMark({
   status,
   onChange,
+  size = "md",
 }: {
   status: Status;
   onChange?: (next: Status) => void;
+  size?: "sm" | "md";
 }) {
   const style = STYLE[status];
   const meta = STATUSES.find((s) => s.id === status);
+  const box = size === "sm" ? "size-5" : "size-7";
 
   function cycle() {
     if (!onChange) return;
@@ -43,46 +46,33 @@ export function StatusMark({
     onChange(ORDER[(idx + 1) % ORDER.length]);
   }
 
-  const Icon =
-    status === "needs_approval"
-      ? Circle
-      : status === "working"
-        ? LoaderCircle
-        : Check;
-
   return (
     <button
       type="button"
       onClick={cycle}
       disabled={!onChange}
-      title={`${meta?.label ?? style.label} — click to change`}
-      aria-label={`Status: ${meta?.label ?? style.label}. Click to cycle.`}
+      aria-label={
+        onChange
+          ? `Status: ${meta?.label ?? style.label}. Click to cycle.`
+          : `Status: ${meta?.label ?? style.label}`
+      }
       className={cn(
-        "inline-flex size-8 items-center justify-center rounded-full transition",
+        "inline-flex items-center justify-center rounded-full transition",
+        box,
         style.wrap,
         onChange ? "hover:scale-105 active:scale-95" : "cursor-default",
       )}
     >
-      <Icon
-        className={cn(
-          "size-3.5",
-          style.icon,
-          status === "working" && "animate-spin [animation-duration:2.4s]",
-        )}
-      />
+      {status === "working" ? (
+        <span className="relative inline-flex size-2">
+          <span className="absolute inset-0 animate-ping rounded-full bg-[#2f5bdb]/55" />
+          <span className="relative size-2 rounded-full bg-[#2f5bdb]" />
+        </span>
+      ) : status === "needs_approval" ? (
+        <Circle className={cn(size === "sm" ? "size-2.5" : "size-3", style.icon)} />
+      ) : (
+        <Check className={cn(size === "sm" ? "size-2.5" : "size-3", style.icon)} />
+      )}
     </button>
-  );
-}
-
-export function StatusLegend() {
-  return (
-    <div className="flex items-center gap-3">
-      {ORDER.map((status) => (
-        <div key={status} className="flex items-center gap-1.5">
-          <StatusMark status={status} />
-          <span className="sr-only">{STYLE[status].label}</span>
-        </div>
-      ))}
-    </div>
   );
 }

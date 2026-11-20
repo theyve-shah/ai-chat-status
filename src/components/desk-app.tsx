@@ -15,7 +15,7 @@ import {
   resolveOpenTargets,
   type ToolConnection,
 } from "@/lib/connections";
-import { formatExact, formatRelative } from "@/lib/time";
+import { formatRelative } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import {
   KINDS,
@@ -33,6 +33,7 @@ import {
   Code2,
   ExternalLink,
   Home,
+  LayoutGrid,
   Link2,
   LogOut,
   MessageSquare,
@@ -126,38 +127,40 @@ export function DeskApp() {
   return (
     <div className="min-h-screen bg-white text-[#111]">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col md:flex-row">
-        <aside className="px-3 py-5 md:sticky md:top-0 md:flex md:h-screen md:w-[4.5rem] md:flex-col md:items-center md:px-2 md:py-6 lg:w-52 lg:items-stretch lg:px-4">
-          <div className="mb-6 flex items-center gap-2 px-2 lg:mb-10">
-            <span className="inline-flex size-8 items-center justify-center rounded-xl bg-[#111] text-xs font-semibold text-white">
+        <aside className="px-2 py-3 md:sticky md:top-0 md:flex md:h-screen md:w-14 md:flex-col md:items-center md:px-1.5 md:py-4 lg:w-44 lg:items-stretch lg:px-2.5">
+          <div className="mb-3 flex items-center gap-2 px-1.5 lg:mb-5">
+            <span className="inline-flex size-7 items-center justify-center rounded-lg bg-[#111] text-[11px] font-semibold text-white">
               D
             </span>
             <div className="hidden lg:block">
-              <p className="text-sm font-medium tracking-tight">Desk</p>
-              <p className="text-[11px] text-[#9ca3af]">check-in</p>
+              <p className="text-sm font-medium leading-none tracking-tight">
+                Desk
+              </p>
+              <p className="mt-0.5 text-[10px] text-[#9ca3af]">check-in</p>
             </div>
           </div>
 
-          <nav className="flex gap-1 md:flex-col md:gap-1">
+          <nav className="flex gap-0.5 md:flex-col">
             <NavItem
               active={view === "board" && !showArchived}
               onClick={() => {
                 setView("board");
                 setShowArchived(false);
               }}
-              icon={<Home className="size-4" />}
+              icon={<Home className="size-3.5" />}
               label="Home"
             />
             <NavItem
               active={view === "connect"}
               onClick={() => setView("connect")}
-              icon={<Link2 className="size-4" />}
+              icon={<Link2 className="size-3.5" />}
               label="Connect"
               badge={counts.connected}
             />
           </nav>
 
-          <div className="mt-6 hidden flex-col gap-1 lg:flex">
-            <p className="px-2 pb-1 text-[10px] font-medium uppercase tracking-[0.16em] text-[#c0c4cc]">
+          <div className="mt-4 hidden flex-col gap-0.5 lg:flex">
+            <p className="px-1.5 pb-1 text-[9px] font-medium uppercase tracking-[0.14em] text-[#c0c4cc]">
               Tools
             </p>
             <NavItem
@@ -166,7 +169,7 @@ export function DeskApp() {
                 setView("board");
                 setToolFilter("all");
               }}
-              icon={<span className="text-[11px] font-semibold">All</span>}
+              icon={<LayoutGrid className="size-3.5" />}
               label="All"
               badge={counts.all}
             />
@@ -188,45 +191,45 @@ export function DeskApp() {
             ))}
           </div>
 
-          <div className="mt-6 hidden flex-col gap-1 lg:flex">
-            <p className="px-2 pb-1 text-[10px] font-medium uppercase tracking-[0.16em] text-[#c0c4cc]">
+          <div className="mt-4 hidden flex-col gap-0.5 lg:flex">
+            <p className="px-1.5 pb-1 text-[9px] font-medium uppercase tracking-[0.14em] text-[#c0c4cc]">
               Type
             </p>
             <NavItem
               active={kindFilter === "all"}
               onClick={() => setKindFilter("all")}
-              icon={<span className="text-[11px] font-semibold">∗</span>}
+              icon={<LayoutGrid className="size-3.5" />}
               label="All"
             />
             <NavItem
               active={kindFilter === "chat"}
               onClick={() => setKindFilter("chat")}
-              icon={<MessageSquare className="size-4" />}
+              icon={<MessageSquare className="size-3.5" />}
               label="Chat"
             />
             <NavItem
               active={kindFilter === "code"}
               onClick={() => setKindFilter("code")}
-              icon={<Code2 className="size-4" />}
+              icon={<Code2 className="size-3.5" />}
               label="Code"
             />
           </div>
 
-          <div className="mt-auto hidden space-y-1 pt-8 lg:block">
+          <div className="mt-auto hidden space-y-0.5 pt-4 lg:block">
             <NavItem
               active={showArchived}
               onClick={() => {
                 setView("board");
                 setShowArchived((v) => !v);
               }}
-              icon={<Archive className="size-4" />}
+              icon={<Archive className="size-3.5" />}
               label="Archive"
               badge={counts.archived}
             />
             <button
               type="button"
               onClick={resetSamples}
-              className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-xs text-[#9ca3af] transition hover:text-[#111]"
+              className="flex w-full items-center gap-2 rounded-lg px-1.5 py-1.5 text-left text-xs text-[#9ca3af] transition hover:text-[#111]"
             >
               <RotateCcw className="size-3.5" />
               Reset samples
@@ -237,7 +240,7 @@ export function DeskApp() {
                 await fetch("/api/auth/logout", { method: "POST" });
                 window.location.href = "/login";
               }}
-              className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-xs text-[#9ca3af] transition hover:text-[#111]"
+              className="flex w-full items-center gap-2 rounded-lg px-1.5 py-1.5 text-left text-xs text-[#9ca3af] transition hover:text-[#111]"
             >
               <LogOut className="size-3.5" />
               Sign out
@@ -252,17 +255,17 @@ export function DeskApp() {
             <>
               <header className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <div className="mb-3 flex items-center gap-2">
-                    <StatusMark status="needs_approval" />
-                    <span className="text-xs tabular-nums text-[#9ca3af]">
+                  <div className="mb-2 flex items-center gap-1.5">
+                    <StatusMark status="needs_approval" size="sm" />
+                    <span className="text-[11px] tabular-nums text-[#9ca3af]">
                       {counts.needs_approval}
                     </span>
-                    <StatusMark status="working" />
-                    <span className="text-xs tabular-nums text-[#9ca3af]">
+                    <StatusMark status="working" size="sm" />
+                    <span className="text-[11px] tabular-nums text-[#9ca3af]">
                       {counts.working}
                     </span>
-                    <StatusMark status="done" />
-                    <span className="text-xs tabular-nums text-[#9ca3af]">
+                    <StatusMark status="done" size="sm" />
+                    <span className="text-[11px] tabular-nums text-[#9ca3af]">
                       {counts.done}
                     </span>
                   </div>
@@ -277,7 +280,7 @@ export function DeskApp() {
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       placeholder="Search"
-                      className="h-9 w-full border-0 bg-[#f5f5f5] pl-9 shadow-none ring-0 focus-visible:ring-1 focus-visible:ring-[#d1d5db] sm:w-52"
+                      className="h-9 w-full rounded-full border-0 bg-[#f5f5f5] pl-9 shadow-none ring-0 focus-visible:ring-1 focus-visible:ring-[#d1d5db] sm:w-52"
                     />
                   </div>
                   <Button
@@ -392,26 +395,28 @@ function NavItem({
     <button
       type="button"
       onClick={onClick}
-      title={label}
+      aria-label={label}
       className={cn(
-        "group flex items-center gap-2 rounded-xl px-2 py-2 text-sm transition",
+        "group flex items-center gap-2 rounded-lg px-1.5 py-1 text-sm transition",
         active ? "text-[#111]" : "text-[#9ca3af] hover:text-[#111]",
       )}
     >
       <span
         className={cn(
-          "relative inline-flex size-9 items-center justify-center rounded-xl transition",
+          "relative inline-flex size-7 items-center justify-center rounded-lg transition",
           active ? "bg-[#f3f4f6]" : "group-hover:bg-[#f7f7f7]",
         )}
       >
         {icon}
         {connected ? (
-          <span className="absolute top-1 right-1 size-1.5 rounded-full bg-[#10b981]" />
+          <span className="absolute top-0.5 right-0.5 size-1.5 rounded-full bg-[#10b981]" />
         ) : null}
       </span>
-      <span className="hidden flex-1 text-left lg:inline">{label}</span>
+      <span className="hidden flex-1 text-left text-[13px] lg:inline">
+        {label}
+      </span>
       {typeof badge === "number" ? (
-        <span className="hidden text-xs tabular-nums text-[#c0c4cc] lg:inline">
+        <span className="hidden text-[11px] tabular-nums text-[#c0c4cc] lg:inline">
           {badge}
         </span>
       ) : null}
@@ -536,7 +541,7 @@ function ChatRow({
             </p>
             <ToolMark tool={chat.tool} />
             <span
-              title={KINDS.find((k) => k.id === chat.kind)?.label}
+              aria-label={KINDS.find((k) => k.id === chat.kind)?.label}
               className="inline-flex size-6 items-center justify-center rounded-full bg-white text-[#9ca3af] ring-1 ring-[#ececec]"
             >
               {kindIcon}
@@ -547,10 +552,7 @@ function ChatRow({
               {chat.note}
             </p>
           ) : null}
-          <p
-            className="mt-1 text-[11px] text-[#c0c4cc]"
-            title={`${formatExact(chat.updatedAt)} IST`}
-          >
+          <p className="mt-1 text-[11px] text-[#c0c4cc]">
             {formatRelative(chat.updatedAt)}
           </p>
         </div>
@@ -578,7 +580,6 @@ function ChatRow({
               rel="noreferrer"
               className="inline-flex size-8 items-center justify-center rounded-full text-[#9ca3af] transition hover:bg-white hover:text-[#111]"
               aria-label="Open saved chat link"
-              title="Open saved chat link"
             >
               <Link2 className="size-3.5" />
             </a>
@@ -615,7 +616,6 @@ function IconAction({
       type="button"
       onClick={onClick}
       aria-label={label}
-      title={label}
       className="inline-flex size-8 items-center justify-center rounded-full text-[#9ca3af] transition hover:bg-white hover:text-[#111]"
     >
       {children}
